@@ -110,10 +110,11 @@ export function applyAction(
 ): { state: GameState; events: GameEvent[] } {
   const reasons = validate(state, content, action);
   if (reasons.length > 0) throw new IllegalActionError(action, reasons);
-  const draft = structuredClone(state);
-  const logStart = draft.log.length;
+  // The log is append-only and its events are never mutated, so it's shared instead of cloned.
+  const draft = structuredClone<GameState>({ ...state, log: [] });
   resolve(draft, content, action);
-  return { state: draft, events: draft.log.slice(logStart) };
+  const events = draft.log;
+  return { state: { ...draft, log: [...state.log, ...events] }, events };
 }
 
 /** Rebuild a game from its seed and action log (saves, undo, bug reports). */

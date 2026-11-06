@@ -24,8 +24,7 @@ export type Preview =
 export function previewAction(state: GameState, content: ContentIndex, action: Action): Preview {
   const reasons = validate(state, content, action);
   if (reasons.length > 0) return { legal: false, reasons };
-  const draft = structuredClone(state);
-  const start = draft.log.length;
+  const draft = structuredClone<GameState>({ ...state, log: [] });
   resolve(draft, content, action);
 
   const players: Record<PlayerId, PlayerDelta> = {};
@@ -39,7 +38,7 @@ export function previewAction(state: GameState, content: ContentIndex, action: A
     }
   };
 
-  for (const event of draft.log.slice(start)) {
+  for (const event of draft.log) {
     if (event.type === 'roundEnding' || event.type === 'roundStarted') break;
     switch (event.type) {
       case 'resourcesGained':
