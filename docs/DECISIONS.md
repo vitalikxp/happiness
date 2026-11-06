@@ -38,3 +38,9 @@ cannot add new basic resources without an engine change (acceptable for v1).
 `@preact/preset-vite`); no `preact/compat` / React-only libraries without a new ADR. pnpm is the only
 package manager: `pnpm-lock.yaml` committed, `packageManager` pinned, CI uses `pnpm install --frozen-lockfile`.
 **Consequences:** Smaller bundle; ecosystem limited to Preact-native or framework-agnostic libraries.
+
+## ADR-009 — Toolchain versions and own i18n module (2026-11-06)
+**Context:** M0 scaffold. `typescript-eslint` 8.x supports TypeScript `<6.1`; `@preact/preset-vite` needs Babel 7.
+**Decision:** Pin TypeScript `~6.0`, `@babel/core` `^7`; Vite 8, Vitest 5, ESLint 10 (flat config).
+i18n is a small typed module on `@preact/signals` instead of an i18n library (no `preact/compat` needed,
+keys type-checked). **Consequences:** Upgrade TS to 7 once typescript-eslint supports it.

@@ -3,12 +3,12 @@
 Each milestone ends in a working, tested state. Agents: pick the first unchecked item of the current
 milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 
-## M0 — Scaffold
-- [ ] pnpm + Vite + Preact + TS (strict) app; folder layout from `ARCHITECTURE.md §2`
-- [ ] Vitest, fast-check, ESLint (+ import boundaries), Prettier, `pnpm typecheck`
-- [ ] CI (GitHub Actions): typecheck, lint, test, build
-- [ ] i18n setup (ru default, en fallback) + one translated string end-to-end
-- [ ] Update `AGENTS.md` Commands section with the real commands
+## M0 — Scaffold ✅
+- [x] pnpm + Vite + Preact + TS (strict) app; folder layout from `ARCHITECTURE.md §2`
+- [x] Vitest, fast-check, ESLint (+ import boundaries), Prettier, `pnpm typecheck`
+- [x] CI (GitHub Actions): typecheck, lint, test, build
+- [x] i18n setup (ru default, en fallback) + one translated string end-to-end
+- [x] Update `AGENTS.md` Commands section with the real commands
 
 **DoD:** `pnpm build` and `pnpm test` green in CI; empty page renders a localized title.
 
