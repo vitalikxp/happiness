@@ -259,6 +259,10 @@ export const PackSchema = z.strictObject({
   version: z.string().regex(/^\d+\.\d+\.\d+$/),
   /** Set to false for test packs: the budget linter then reports but never fails. */
   budgetLint: z.boolean().optional(),
+  /** Player-facing texts by locale, keyed as described in docs/CONTENT.md §6 (`text.ts`). */
+  locales: z.record(z.string(), z.record(z.string(), z.string())).optional(),
+  /** Locale that must contain every required text key. */
+  defaultLocale: z.string().optional(),
   rules: RulesConfigSchema,
   cards: z.strictObject({
     projects: z.array(

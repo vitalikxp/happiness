@@ -12,9 +12,10 @@ describe('budget linter', () => {
       category: 'craft',
       levels: [
         { cost: { knowledge: 1 }, reward: { creativity: 4 } }, // 4 − 1 − 3 = 0
-        { cost: { time: 1, creativity: 1 }, reward: { lth: 3 } }, // 6 − 4 = 2
-        { cost: { time: 1 }, reward: { lth: 1 } }, // 2 − 3 = −1 → out of band
-        { cost: { time: 2, knowledge: 1 }, reward: { lth: 6 } }, // 12 − 7 = 5
+        // Resource-only rewards keep this test independent of the LTH price.
+        { cost: { time: 1, creativity: 1 }, reward: { creativity: 6 } }, // 6 − 4 = 2
+        { cost: { time: 1 }, reward: { knowledge: 2 } }, // 2 − 3 = −1 → out of band
+        { cost: { time: 2, knowledge: 1 }, reward: { knowledge: 12 } }, // 12 − 7 = 5
       ],
     };
     expect(budgetCard(card).map((l) => [l.part, l.net, l.ok])).toEqual([
