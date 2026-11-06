@@ -202,11 +202,13 @@ export type IllegalReason =
   | { code: 'notInTableau' };
 
 export class IllegalActionError extends Error {
-  constructor(
-    readonly action: Action,
-    readonly reasons: IllegalReason[],
-  ) {
+  readonly action: Action;
+  readonly reasons: IllegalReason[];
+
+  constructor(action: Action, reasons: IllegalReason[]) {
     super(`Illegal action ${action.type}: ${reasons.map((r) => r.code).join(', ')}`);
     this.name = 'IllegalActionError';
+    this.action = action;
+    this.reasons = reasons;
   }
 }

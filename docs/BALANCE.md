@@ -18,6 +18,8 @@ Status: **draft v0.1** — all numbers here are *initial hypotheses* to be verif
 
 ## 2. Value model (unit **R** = 1 basic resource)
 
+Implemented in `src/content/valueModel.ts` (used by the budget linter and the greedy bot).
+
 | Thing | Value | Rationale |
 |---|---|---|
 | knowledge / creativity / influence | 1 R | Base unit; one board action yields 3 |
@@ -66,6 +68,19 @@ Linter flags levels outside the band; designer either fixes the numbers or adds 
 | LTH by source (projects / items+activities / jobs / partners / goals+inheritance) | no single source > 50% on average |
 | Card pick rate outliers | no card picked < 2% or > 40% when visible |
 | Good Health seen by a player by round 4 | ≥ 70% |
+
+## 4a. How to run
+
+```bash
+pnpm sim --games 1000 --bots greedy,greedy,greedy --seed 1 --json report.json   # quick-game shape
+pnpm sim --games 1000 --bots greedy                                             # solo targets
+pnpm sim --games 1000 --bots greedy:scholar,greedy:artisan,greedy:courtier,greedy:family  # archetypes
+pnpm budget --pack fantasy --all
+```
+
+Compare JSON reports between changes. The `core-test` pack is deliberately *not* balanced (it's
+for engine tests); its reports only show that bots and metrics work. First real numbers come with
+the fantasy pack (M4).
 
 ## 5. Tunables (initial `rules.json` for fantasy pack)
 

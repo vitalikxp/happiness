@@ -7,6 +7,7 @@ import type { CardInputOf, PackInput, Reward } from '../../schema.ts';
 export const coreTestPack = {
   id: 'core-test',
   version: '0.1.0',
+  budgetLint: false,
   rules: {
     maxRounds: 8,
     stages: { youth: [1, 1], adulthood: [2, 5], oldAge: [6, 8] },

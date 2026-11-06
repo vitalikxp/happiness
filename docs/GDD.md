@@ -282,6 +282,7 @@ Zones left→right *(tunable, initial proposal — BALANCE.md)*:
 - **R-BOT-03** Bots choose deterministically given the game seed (own RNG stream).
 - **R-BOT-04** Bots have "personality" weights (scholar / artisan / courtier / family / hedonist)
   for variety and flavor in the biography.
+- Bots don't refresh market rows or discard cards in v1 (those don't end the turn).
 
 ---
 

@@ -23,15 +23,16 @@ src/
     packs/
       core-test/   Tiny pack for engine tests (stable, never rebalanced casually).
       fantasy/     First real pack: cards/*.ts|json, rules.json, locales/{ru,en}.json, art/
-  ai/         Bots. Depends on engine public API only.
-  sim/        Headless CLI: runs N games bot-vs-bot, prints balance report. Depends on engine, ai, content.
+  ai/         Bots: random, greedy (+ personalities). Depend on the engine public API and content data.
+  sim/        Node CLIs: `pnpm sim` (bot games in worker threads → report) and `pnpm budget`.
+              Depends on engine, ai, content; the only layer allowed to use Node APIs.
   ui/         Preact app: components, hooks, i18n, animation. Depends on engine API, content, ai.
   meta/       Achievements & unlock rules: pure functions over finished games (added in M6).
               Depends on engine, content. Persistence (localStorage) lives in ui/.
   shared/     Small utilities (no game logic).
 ```
 
-Allowed imports: `ui → engine, ai, content` · `ai → engine` · `sim → engine, ai, content` ·
+Allowed imports: `ui → engine, ai, content` · `ai → engine, content` · `sim → engine, ai, content` ·
 `engine → content/schema types only` · `shared → nothing`. Enforced in `eslint.config.js` via
 `no-restricted-imports` per layer (UI framework imports only in `ui/`); `engine/` and `ai/` also ban
 `Math.random`, `Date`, timers, DOM and I/O globals.
@@ -128,11 +129,22 @@ content/packs/fantasy/
 | Unit | Each rule ID, using `core-test` pack | `src/engine/**/*.test.ts` |
 | Property | Invariants: no negative resources, determinism, JSON round-trip, legal actions never throw, game always terminates | `src/engine/invariants.test.ts` |
 | Content | Schema, i18n completeness, budget lint | `src/content/**/*.test.ts` |
-| Simulation | N seeded bot games: no crashes, termination, stats within BALANCE targets | `pnpm sim`, CI smoke with small N |
+| Bots & sim | Bots pick legal moves, are deterministic, greedy ≫ random, personalities differ; sim metrics | `src/ai/*.test.ts`, `src/sim/*.test.ts`, `pnpm sim` |
+| Budget | Packs with `budgetLint` stay inside BALANCE §3 bands | `src/content/budget.test.ts`, `pnpm budget` |
 | Component | Key UI components | `@testing-library/preact` |
 | E2E | Start game, take actions, finish life | Playwright (M5+) |
 
-## 7. Performance targets
+## 7. Bots & simulation
+
+- `Bot.choose(state, content, player)` returns one of `getLegalActions`. Bots are stateless; their
+  randomness is `seedRng(seed:bot:player:logLength)`, so whole games replay from the seed.
+- `greedy` previews every legal action and scores: value-model deltas (`src/content/valueModel.ts`,
+  resources worth less late in life), Stress per point + zone Time loss, plus the future a card opens
+  (remaining levels, ongoing upkeep income, group bonus tiers, slot overload Stress). Personalities
+  multiply positive scores of matching actions. Bots skip row refreshes and discards (no turn end).
+- `applyAction`/`previewAction` don't clone the append-only log, which keeps previews cheap.
+
+## 8. Performance targets
 
 - `getLegalActions` + `applyAction` < 1 ms typical; simulator ≥ 1000 full bot games/min on a laptop
-  (needed for balance work and planner bots).
+  (needed for balance work and planner bots). Measured (M3, 12 cores): 1000 games × 3 greedy bots ≈ 27 s.

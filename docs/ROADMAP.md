@@ -34,10 +34,10 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 
 **DoD:** all GDD rule IDs implemented & tested; random-bot games always terminate (property test).
 
-## M3 — Bots & simulator
-- [ ] `random` and `greedy` bots (value model from BALANCE.md), personalities
-- [ ] `pnpm sim` with report (metrics table from BALANCE.md §4), JSON output for diffs
-- [ ] Budget linter for content
+## M3 — Bots & simulator ✅
+- [x] `random` and `greedy` bots (value model from BALANCE.md), personalities
+- [x] `pnpm sim` with report (metrics table from BALANCE.md §4), JSON output for diffs
+- [x] Budget linter for content (`pnpm budget`; enforced in tests for packs with `budgetLint`)
 
 **DoD:** 1000-game sim runs < 1 min, report produced, linter in CI.
 
