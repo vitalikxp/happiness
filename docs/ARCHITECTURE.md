@@ -5,8 +5,12 @@ Status: **draft v0.1**. Decisions behind this: `DECISIONS.md` (ADR-002…007).
 ## 1. Stack
 
 - **pnpm** (only package manager; `packageManager` field pinned in `package.json`)
-- **TypeScript** (strict) · **Vite** + `@preact/preset-vite` · **Preact** (UI only) + `@preact/signals` · **Vitest** (+ `fast-check` for property tests)
-- **zod** — content pack schemas · a tiny typed i18n module (no React-only libs; decide details in M0)
+- **TypeScript 6.0** (strict + `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) · **Vite 8** +
+  `@preact/preset-vite` · **Preact** (UI only) + `@preact/signals` · **Vitest** (+ `fast-check` for property tests)
+- **zod** — content pack schemas (added in M1)
+- **i18n** — own typed module `src/ui/i18n/`: `ru` catalog is the source of message keys (`MessageKey`),
+  other locales are `Partial`; lookup order: requested → `en` → `ru` → key; `{param}` interpolation;
+  current locale is a signal. Content-pack texts will be merged into the same lookup (M4).
 - **ESLint + Prettier** · **Playwright** (e2e smoke, later) · **tsx** for the headless simulator
 - Output: static site (`dist/`), deployable to GitHub Pages / any static host. No backend.
 
@@ -26,7 +30,9 @@ src/
 ```
 
 Allowed imports: `ui → engine, ai, content` · `ai → engine` · `sim → engine, ai, content` ·
-`engine → content/schema types only`. Enforce with ESLint `import/no-restricted-paths`.
+`engine → content/schema types only` · `shared → nothing`. Enforced in `eslint.config.js` via
+`no-restricted-imports` per layer (UI framework imports only in `ui/`); `engine/` and `ai/` also ban
+`Math.random`, `Date`, timers, DOM and I/O globals.
 
 ## 3. Engine model
 

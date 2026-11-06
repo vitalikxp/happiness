@@ -57,17 +57,23 @@ texts, numbers, art) is **our own**; the first content pack is set in a **classi
 
 ## Commands
 
-> The project is not scaffolded yet (Roadmap M0). Planned commands — keep this list in sync once real:
+Requires Node ≥ 24 (`.node-version`) and pnpm (version pinned in `package.json` → `packageManager`).
 
 ```bash
 pnpm install
 pnpm dev              # Vite dev server
 pnpm build            # typecheck + production build (static files in dist/)
-pnpm test             # Vitest (engine, content, ai)
-pnpm lint             # ESLint + Prettier check
-pnpm typecheck        # tsc --noEmit
-pnpm sim --games 1000 --bots greedy,greedy --seed 1   # headless balance simulation
+pnpm test             # Vitest: "logic" project (node) + "ui" project (jsdom)
+pnpm test:watch       # Vitest watch mode
+pnpm lint             # ESLint (incl. layer boundaries & determinism rules) + Prettier check
+pnpm format           # Prettier write
+pnpm typecheck        # tsc -b (app + node configs)
 ```
+
+Planned (M3): `pnpm sim --games 1000 --bots greedy,greedy --seed 1` — headless balance simulation.
+
+Layer boundaries and engine purity (rule 2, `docs/ARCHITECTURE.md §2`) are enforced by ESLint in
+`eslint.config.js` — don't disable those rules; change the architecture doc first if a boundary must move.
 
 ## Code conventions
 
