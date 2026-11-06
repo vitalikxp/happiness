@@ -13,6 +13,10 @@ const uiFramework = {
   group: ['preact', 'preact/**', '@preact/**', 'react', 'react/**', 'react-dom', 'react-dom/**'],
   message: 'UI framework imports belong to src/ui/ only.',
 };
+const nodeBuiltins = {
+  group: ['node:*', 'fs', 'path', 'os', 'child_process', 'worker_threads'],
+  message: 'Node APIs belong to src/sim/ (CLI tools) only.',
+};
 const restrictImports = (...patterns) => ['error', { patterns }];
 
 /** Engine and bots must be deterministic: randomness only via the seeded RNG (AGENTS.md rule 2). */
@@ -48,13 +52,19 @@ export default tseslint.config(
   {
     files: ['src/ui/**/*.{ts,tsx}'],
     languageOptions: { globals: globals.browser },
-    rules: { 'no-restricted-imports': restrictImports(layer('sim')) },
+    rules: { 'no-restricted-imports': restrictImports(layer('sim'), nodeBuiltins) },
   },
   {
     files: ['src/engine/**/*.ts'],
     rules: {
       ...determinism,
-      'no-restricted-imports': restrictImports(layer('ui'), layer('ai'), layer('sim'), uiFramework),
+      'no-restricted-imports': restrictImports(
+        layer('ui'),
+        layer('ai'),
+        layer('sim'),
+        uiFramework,
+        nodeBuiltins,
+      ),
     },
   },
   {
@@ -64,8 +74,8 @@ export default tseslint.config(
       'no-restricted-imports': restrictImports(
         layer('ui'),
         layer('sim'),
-        layer('content'),
         uiFramework,
+        nodeBuiltins,
       ),
     },
   },
