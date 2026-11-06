@@ -220,7 +220,7 @@ and levels/roles with `cost`, `reward`, optional `upkeep` and `requirement`.
 
 ## 8. Stress track
 
-Zones left→right *(tunable, initial proposal — BALANCE.md)*:
+Zones left→right *(tunable; Old Age Stress values and their reasoning: BALANCE.md §5)*:
 
 | Zone | Spaces | Time modifier |
 |---|---|---|

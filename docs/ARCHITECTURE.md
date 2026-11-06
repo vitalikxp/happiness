@@ -142,6 +142,8 @@ content/packs/fantasy/
   resources worth less late in life), Stress per point + zone Time loss, plus the future a card opens
   (remaining levels, ongoing upkeep income, group bonus tiers, slot overload Stress). Personalities
   multiply positive scores of matching actions. Bots skip row refreshes and discards (no turn end).
+- Greedy also values progress towards the revealed Life Goals (more in solo, where they decide the
+  win), treats Good Health as an extra round of life, and foresees the next Old Age Stress.
 - `applyAction`/`previewAction` don't clone the append-only log, which keeps previews cheap.
 
 ## 8. Performance targets

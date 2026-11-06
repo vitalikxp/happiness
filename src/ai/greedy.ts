@@ -14,6 +14,7 @@ import {
   nextFloat,
   previewAction,
   timeForRound,
+  trackLength,
   type Action,
   type GameState,
   type PlayerDelta,
@@ -69,13 +70,16 @@ function context(state: GameState, content: ContentIndex, player: PlayerId, tast
   const roundsLeft = Math.max(0, content.rules.maxRounds - state.round);
   // Late in life resources are worth little more than their inheritance (5 R → 1 LTH).
   const resource = 0.4 + 0.6 * Math.min(1, roundsLeft / 3);
+  const time = VALUE.time * resource;
+  // Good Health also buys an extra round of life in Old Age (see survivalValue).
+  const lifeRound = roundsLeft > 0 ? content.rules.startTime * time * SURVIVAL_SHARE : 0;
   return {
     content,
     state,
     me,
     roundsLeft,
     taste,
-    w: { ...VALUE, resource, time: VALUE.time * resource },
+    w: { ...VALUE, resource, time, goodHealth: VALUE.goodHealth + lifeRound },
   };
 }
 
@@ -84,7 +88,8 @@ export function evaluate(ctx: Ctx, action: Action): number {
   if (!preview.legal) return DEATH;
   const delta = preview.players[ctx.me.id];
   if (delta?.died) return DEATH;
-  const score = (delta ? deltaValue(ctx, delta) : 0) + futureValue(ctx, action);
+  const score =
+    (delta ? deltaValue(ctx, delta) : 0) + futureValue(ctx, action) + goalValue(ctx, action, delta);
   return score > 0 && matchesTaste(ctx, action) ? score * TASTE_BONUS : score;
 }
 
@@ -110,8 +115,28 @@ function stressValue(ctx: Ctx, change: number): number {
   const perPoint = stressPerPoint(ctx);
   const from = ctx.me.stress;
   const timeChange = timeForRound(rules, from + change) - timeForRound(rules, from);
-  return -change * perPoint + timeChange * ctx.w.time * ctx.roundsLeft;
+  return (
+    -change * perPoint + timeChange * ctx.w.time * ctx.roundsLeft + survivalValue(ctx, from, change)
+  );
 }
+
+/**
+ * Old Age Stress arrives at the next Upkeep: crossing the line between surviving it and dying from
+ * it is worth (roughly) the rest of the life.
+ */
+function survivalValue(ctx: Ctx, from: number, change: number): number {
+  const { rules } = ctx.content;
+  if (ctx.roundsLeft === 0) return 0;
+  const incoming = rules.oldAgeStress[String(ctx.state.round + 1)] ?? 0;
+  const last = trackLength(rules) - 1;
+  const survives = (position: number) => position + incoming <= last;
+  if (survives(from) === survives(from + change)) return 0;
+  const life = ctx.roundsLeft * rules.startTime * ctx.w.time * SURVIVAL_SHARE;
+  return survives(from + change) ? life : -life;
+}
+
+/** Share of the remaining rounds' Time a bot puts on staying alive. */
+const SURVIVAL_SHARE = 0.5;
 
 const net = (ctx: Ctx, reward: Reward, cost: Parameters<typeof costValue>[0]) =>
   rewardValue(reward, ctx.w) - costValue(cost, ctx.w);
@@ -284,6 +309,128 @@ function futureValue(ctx: Ctx, action: Action): number {
     case 'refuseUpkeep':
     case 'refreshRow':
     case 'discardCard':
+      return 0;
+  }
+}
+
+/** How much an action moves the player towards the revealed Life Goals (R-LG-01). */
+function goalValue(ctx: Ctx, action: Action, delta: PlayerDelta | undefined): number {
+  const { content, state } = ctx;
+  const solo = state.players.length === 1;
+  // Resources only count at death, so hoarding matters late in life.
+  const lateness = Math.min(1, Math.max(0.2, 1 - ctx.roundsLeft / 4));
+  let total = 0;
+  for (const goalId of state.lifeGoals) {
+    const goal = content.cards.get(goalId);
+    if (goal?.kind !== 'lifeGoal') continue;
+    const target = goal.solo.atLeast;
+    const before = goalMetric(ctx, goal.metric);
+    const after = before + goalProgress(ctx, goal.metric, action, delta);
+    const gain = (Math.min(after, target) - Math.min(before, target)) / target;
+    if (gain === 0) continue;
+    const resourceGoal = goal.metric.endsWith('AtDeath');
+    // Solo: the three goals decide the win, so they weigh more than their LTH.
+    const weight = goal.award.lth * ctx.w.lth * (solo ? GOAL_SOLO_WEIGHT : 1);
+    total += gain * weight * (resourceGoal ? lateness : 1);
+  }
+  return total;
+}
+
+/** Solo games are won only with all three goals: value their progress above their LTH. */
+const GOAL_SOLO_WEIGHT = 2.5;
+
+function goalMetric(ctx: Ctx, metric: CardOf<'lifeGoal'>['metric']): number {
+  const { me, content } = ctx;
+  const kindOf = (id: string) => content.cards.get(id)?.kind;
+  switch (metric) {
+    case 'knowledgeAtDeath':
+      return me.resources.knowledge;
+    case 'creativityAtDeath':
+      return me.resources.creativity;
+    case 'influenceAtDeath':
+      return me.resources.influence;
+    case 'moneyAtDeath':
+      return me.resources.money;
+    case 'completedProjects':
+      return me.archive.filter((a) => (kindOf(a.cardId) ?? '').endsWith('roject')).length;
+    case 'itemsOwned':
+      return me.tableau.filter((c) => kindOf(c.cardId) === 'item').length;
+    case 'partnerLevel':
+      return Math.max(
+        0,
+        ...me.tableau.filter((c) => kindOf(c.cardId) === 'partner').map((c) => c.level ?? 0),
+      );
+    case 'jobLevel':
+      return Math.max(
+        0,
+        ...me.tableau.map((c) => {
+          const card = content.cards.get(c.cardId);
+          return card?.kind === 'job' ? card.level : 0;
+        }),
+      );
+    case 'roundsLived':
+      return 0; // handled by Stress valuation
+  }
+}
+
+/** Estimated change of a goal metric caused by `action`. */
+function goalProgress(
+  ctx: Ctx,
+  metric: CardOf<'lifeGoal'>['metric'],
+  action: Action,
+  delta: PlayerDelta | undefined,
+): number {
+  const { content, me } = ctx;
+  const card = (id: string) => content.cards.get(id);
+  switch (metric) {
+    case 'knowledgeAtDeath':
+    case 'creativityAtDeath':
+    case 'influenceAtDeath':
+    case 'moneyAtDeath': {
+      const resource = metric.replace('AtDeath', '') as keyof PlayerDelta['resources'];
+      return delta?.resources[resource] ?? 0;
+    }
+    case 'completedProjects': {
+      if (action.type === 'advanceProject') {
+        const entry = me.tableau.find((c) => c.instanceId === action.instanceId);
+        const c = entry ? card(entry.cardId) : undefined;
+        return c?.kind === 'basicProject' && (entry?.level ?? 0) + 1 === c.levels.length ? 1 : 0;
+      }
+      if (action.type === 'placeTime' && action.choice?.kind === 'project') {
+        const kind = card(action.choice.card)?.kind;
+        return kind === 'singleRoundProject' || kind === 'groupProject' ? 1 : 0;
+      }
+      return 0;
+    }
+    case 'itemsOwned':
+      return action.type === 'placeTime' &&
+        action.choice?.kind === 'spend' &&
+        card(action.choice.card)?.kind === 'item'
+        ? 1
+        : 0;
+    case 'partnerLevel': {
+      if (action.type !== 'placeTime') return 0;
+      const current = goalMetric(ctx, 'partnerLevel');
+      if (action.choice?.kind === 'startRelationship') return current === 0 ? 1 : 0;
+      if (action.choice?.kind === 'advanceRelationship') {
+        const instanceId = action.choice.instanceId;
+        const level = (me.tableau.find((c) => c.instanceId === instanceId)?.level ?? 0) + 1;
+        return Math.max(0, level - current);
+      }
+      return 0;
+    }
+    case 'jobLevel': {
+      const current = goalMetric(ctx, 'jobLevel');
+      const target =
+        action.type === 'promote'
+          ? action.card
+          : action.type === 'placeTime' && action.choice?.kind === 'job'
+            ? action.choice.card
+            : null;
+      const c = target ? card(target) : undefined;
+      return c?.kind === 'job' ? Math.max(0, c.level - current) : 0;
+    }
+    case 'roundsLived':
       return 0;
   }
 }

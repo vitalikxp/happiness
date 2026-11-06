@@ -10,6 +10,7 @@ import {
   type RowId,
   type RulesConfig,
 } from './schema.ts';
+import { missingTextKeys } from './text.ts';
 
 const MAX_PLAYERS = 4;
 
@@ -38,7 +39,14 @@ export function validatePack(input: unknown): PackValidation {
     };
   }
   const pack = parsed.data;
-  const errors = [...checkRules(pack.rules), ...checkCards(pack)];
+  const errors = [
+    ...checkRules(pack.rules),
+    ...checkCards(pack),
+    ...(pack.locales && !pack.defaultLocale
+      ? ['defaultLocale: required when locales are given']
+      : []),
+    ...missingTextKeys(pack).map((key) => `locales.${pack.defaultLocale ?? '?'}: missing "${key}"`),
+  ];
   return errors.length > 0 ? { ok: false, errors } : { ok: true, pack };
 }
 

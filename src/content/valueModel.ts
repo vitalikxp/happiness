@@ -7,7 +7,8 @@ import { RESOURCES, type Cost, type ResourceBundle, type Reward } from './schema
 export const VALUE = {
   resource: 1,
   time: 3,
-  lth: 2,
+  /** Recalibrated from simulation (M4): 2 R gave ~80 LTH per greedy solo life. */
+  lth: 2.75,
   sth: 0.75,
   stress: 1.5,
   relax: 1.5,

@@ -22,6 +22,8 @@ export interface GameRecord {
   picks: Record<string, number>;
   seen: Record<string, number>;
   goodHealthSeenByRound4: boolean;
+  /** Life Goals in play and whether someone got each. */
+  lifeGoals: { card: string; achieved: boolean }[];
 }
 
 export function recordGame(state: GameState, bots: string[], content: ContentIndex): GameRecord {
@@ -39,6 +41,9 @@ export function recordGame(state: GameState, bots: string[], content: ContentInd
   for (const event of state.log) {
     if (event.type === 'roundStarted') round = event.round;
     if (event.type === 'cardTaken') picks[event.cardId] = (picks[event.cardId] ?? 0) + 1;
+    if (event.type === 'slotRefilled' && event.card !== null) {
+      seen[event.card] = (seen[event.card] ?? 0) + 1;
+    }
     if (event.type === 'marketRefilled' || event.type === 'rowRefreshed') {
       for (const card of event.slots) {
         if (card === null) continue;
@@ -65,6 +70,10 @@ export function recordGame(state: GameState, bots: string[], content: ContentInd
     picks,
     seen,
     goodHealthSeenByRound4: healthSeen,
+    lifeGoals: (state.result?.lifeGoals ?? []).map((g) => ({
+      card: g.card,
+      achieved: g.winner !== null,
+    })),
   };
 }
 
@@ -81,6 +90,8 @@ export interface Report {
   lthBySource: Partial<Record<LthSource, number>>;
   pickRateOutliers: { card: string; rate: number; seen: number }[];
   goodHealthSeenByRound4: number;
+  /** Share of games in which each Life Goal (when in play) was achieved by someone. */
+  lifeGoalRates: { card: string; inPlay: number; rate: number }[];
 }
 
 const avg = (values: number[]) =>
@@ -153,6 +164,17 @@ export function aggregate(records: GameRecord[], elapsedMs: number): Report {
     .filter((c) => c.rate < PICK_RATE_BAND[0] || c.rate > PICK_RATE_BAND[1])
     .sort((a, b) => a.rate - b.rate);
 
+  const goals = new Map<string, { inPlay: number; achieved: number }>();
+  for (const g of records.flatMap((r) => r.lifeGoals)) {
+    const entry = goals.get(g.card) ?? { inPlay: 0, achieved: 0 };
+    entry.inPlay++;
+    if (g.achieved) entry.achieved++;
+    goals.set(g.card, entry);
+  }
+  const lifeGoalRates = [...goals.entries()]
+    .map(([card, g]) => ({ card, inPlay: g.inPlay, rate: pct(g.achieved, g.inPlay) }))
+    .sort((a, b) => a.rate - b.rate);
+
   const solo = records.filter((r) => r.soloWon !== null);
   return {
     games: records.length,
@@ -170,5 +192,6 @@ export function aggregate(records: GameRecord[], elapsedMs: number): Report {
       records.filter((r) => r.goodHealthSeenByRound4).length,
       records.length,
     ),
+    lifeGoalRates,
   };
 }

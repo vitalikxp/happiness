@@ -79,3 +79,12 @@ the worker count. (4) Budget bands live in `src/content/budget.ts`; packs opt ou
 false` (core-test), single cards with `balanceNote`. (5) Node APIs are allowed only in `src/sim/`.
 **Consequences:** Faster engine transitions (shared log). Greedy is a baseline, not a strong player;
 a planner bot remains for later.
+
+## ADR-014 — Fantasy pack authoring and calibration (2026-11-06)
+**Decision:** (1) Cards are authored with their Russian texts side by side; locales are assembled
+from them, so numbers and texts can't drift apart. Per-kind templates set the numbers. (2) The value
+model prices LTH at 2.75 R (was 2 R) after simulation. (3) The greedy bot was made goal-aware and
+survival-aware — balance targets assume a player who plays for their goals and their life. (4) Pick
+rates are judged on solo runs only. (5) Unlockable traits/goals move to M6 with meta-progression.
+**Consequences:** BALANCE.md §5–6 record the calibrated tunables and results; re-run the sim when
+content or the bot changes.

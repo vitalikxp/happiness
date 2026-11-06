@@ -37,6 +37,16 @@ describe('simulator', () => {
     expect(checks(report).map((c) => c.metric)).toContain('Best bot/personality win rate');
   });
 
+  it('plays the fantasy pack with every kind of bot', () => {
+    const games = runJob({
+      pack: 'fantasy',
+      bots: ['greedy:family', 'random', 'greedy'],
+      seed: 'f',
+      indices: [0, 1],
+    });
+    expect(games.flatMap((g) => g.players).every((p) => p.deathRound > 0)).toBe(true);
+  });
+
   it('formats a readable report', () => {
     const text = formatReport(report, 'Test');
     expect(text).toContain('# Test');

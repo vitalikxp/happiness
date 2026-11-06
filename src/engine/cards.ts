@@ -81,6 +81,8 @@ export function takeFromMarket(draft: GameState, row: RowId, card: CardId): void
   const slots = draft.market[row].slots;
   const index = slots.indexOf(card);
   slots[index] = row === 'jobs' ? null : draw(draft, row);
+  if (row !== 'jobs')
+    emit(draft, { type: 'slotRefilled', row, slot: index, card: slots[index] ?? null });
 }
 
 /** Return a card leaving play to its row's discard pile (discards, breakups, replaced jobs). */

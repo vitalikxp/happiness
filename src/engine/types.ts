@@ -141,6 +141,8 @@ export type GameEvent =
   | { type: 'childTraitChosen'; player: PlayerId; card: CardId }
   | { type: 'roundStarted'; round: number; stage: Stage }
   | { type: 'marketRefilled'; row: RowId; slots: (CardId | null)[] }
+  /** A single market slot refilled after a card was taken (R-A-01). */
+  | { type: 'slotRefilled'; row: RowId; slot: number; card: CardId | null }
   | { type: 'timeSet'; player: PlayerId; time: number }
   | { type: 'timePlaced'; player: PlayerId; space: BoardSpaceId }
   | { type: 'resourcesGained'; player: PlayerId; gained: Partial<Resources> }
