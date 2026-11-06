@@ -45,10 +45,11 @@ export function checks(report: Report): Check[] {
       ok: topSource ? topSource[1] <= 0.5 : null,
     },
     {
+      // With several players nearly every visible card gets taken, so only solo runs are judged.
       metric: 'Cards with pick rate outside 2–40%',
       value: String(report.pickRateOutliers.length),
-      target: '0',
-      ok: report.pickRateOutliers.length === 0,
+      target: solo ? '0' : '— (solo only)',
+      ok: solo ? report.pickRateOutliers.length === 0 : null,
     },
     {
       metric: 'Good Health offered by round 4',
@@ -130,6 +131,14 @@ export function formatReport(report: Report, title: string): string {
       .sort((a, b) => b[1] - a[1])
       .map(([source, share]) => `- ${source}: ${percent(share)}`),
   ];
+  lines.push(
+    '',
+    '## Life Goals achieved',
+    '',
+    ...report.lifeGoalRates.map(
+      (g) => `- ${g.card}: ${percent(g.rate)} of ${String(g.inPlay)} games`,
+    ),
+  );
   if (report.pickRateOutliers.length > 0) {
     lines.push(
       '',
