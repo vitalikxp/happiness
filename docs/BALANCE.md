@@ -25,7 +25,7 @@ Implemented in `src/content/valueModel.ts` (used by the budget linter and the gr
 | knowledge / creativity / influence | 1 R | Base unit; one board action yields 3 |
 | money | 1 R | Temp Job yields 3 |
 | time (1 action) | 3 R | Opportunity cost of a basic board action |
-| LTH | 2 R (efficient), 5 R (inheritance floor) | Target lifetime ≈ 50 LTH from ≈ 130–160 R of throughput |
+| LTH | **2.75 R** (efficient), 5 R (inheritance floor) | Was 2 R; simulation showed ~80 LTH per greedy solo life, so LTH was priced up (M4) |
 | STH | 0.75 R | Discounts + turn order + overflow |
 | stress | 1.5 R | Rest = 1 action (3 R) for −2 stress; nonlinear near zone borders/death |
 | relax | 1.5 R | Inverse of stress (capped by zone) |
@@ -82,26 +82,40 @@ Compare JSON reports between changes. The `core-test` pack is deliberately *not*
 for engine tests); its reports only show that bots and metrics work. First real numbers come with
 the fantasy pack (M4).
 
-## 5. Tunables (initial `rules.json` for fantasy pack)
+## 5. Tunables (fantasy pack 0.1.0)
 
-```json
-{
-  "maxRounds": 8,
-  "stages": { "youth": [1], "adulthood": [2, 5], "oldAge": [6, 8] },
-  "startTime": 6,
-  "basicActionYield": 3,
-  "slotLimit": 3,
-  "sthRange": 5,
-  "marketSize": { "1": 3, "2": 3, "3": 3, "4": 4 },
-  "stressZones": [
-    { "id": "blessed",  "spaces": 3, "timeModifier": 1 },
-    { "id": "healthy",  "spaces": 4, "timeModifier": 0, "start": true },
-    { "id": "strained", "spaces": 3, "timeModifier": -1 },
-    { "id": "ill",      "spaces": 3, "timeModifier": -2 },
-    { "id": "failing",  "spaces": 2, "timeModifier": -3 }
-  ],
-  "oldAgeStress": { "6": 3, "7": 6, "8": 10 },
-  "inheritanceRate": 5,
-  "soloWinLth": 50
-}
-```
+The source of truth is `src/content/packs/fantasy/index.ts` (`rules`). Values that came out of the M4
+balance pass:
+
+| Tunable | Value | Why |
+|---|---|---|
+| `oldAgeStress` | round 6: **6**, 7: **8**, 8: **5** | Without Good Health a life ends at the start of round 7, with one it lasts into round 8, two can reach the end. Rest can't leave a zone, so round 7 decides most lives. |
+| Life Goal solo thresholds | resources 8 (money 12), projects 5, items 5, partner level 3, job level 3, rounds lived 8 | Solo win ≈ 30%: all three goals are the bottleneck (goal set ≈ 30%, ≥ 50 LTH ≈ 85%). |
+| Life Goal award | 5 LTH each | ~17% of all LTH. |
+| Basic project LTH | L1 0 · L2 3 · L3 3 · L4 6 (long 7, health: Good Health only) | Projects stay the biggest source but ≤ 50%. |
+| Group projects | role pays 3, gives resources + Joy; bonus tiers LTH 1 · money 1 · Joy 1 · Joy 1 | Full groups were picked > 55% and pushed projects over 50% of LTH in multiplayer. |
+| Partner requirements | skills 4 / 6 / 9, money 5 / 8 / 12 | Partners were too hard to reach (≈ 8% of LTH). |
+
+Everything else is as in `core-test` (start Time 6, 3 slots, STH ±5, stress zones 3/4/3/3/2).
+
+## 6. Results (fantasy 0.1.0, 1000 games each, `pnpm sim --pack fantasy`)
+
+| Metric | Solo `greedy` | 3 × `greedy` | 4 archetypes | Target |
+|---|---|---|---|---|
+| Avg final LTH | 57.1 | 54.1 | 53.4 | 45–60 (solo) |
+| Solo win rate | 29.9% | — | — | 25–45% |
+| Most common death round | 7 | 7 | 7 | 7 |
+| Lives reaching the end | 6.1% | 6.7% | 6.8% | 5–15% |
+| Biggest LTH source | projects 39% | projects 49% | projects 49% | ≤ 50% |
+| Pick-rate outliers | 0 | (solo only) | (solo only) | 0 |
+| Good Health offered by round 4 | 92% | 92% | 98% | ≥ 70% |
+| First seat win rate | — | 35% (≈ 33% fair) | 26% | ≤ 30% (4p) |
+| Best archetype win rate | — | — | 26% | ≤ 60% |
+
+Notes:
+- Pick rates are judged on solo runs only: with 3–4 players almost every visible card gets taken.
+- Results depend on the bot. Greedy knows the revealed Life Goals, values Good Health as an extra
+  round of life and foresees Old Age Stress — without that, solo wins were ~2% and nobody reached
+  the end of life. Re-run the sim after changing the bot as well as after changing content.
+- Jobs show a small LTH share (~6%) because their income is money, which turns into LTH through
+  Items & Activities.

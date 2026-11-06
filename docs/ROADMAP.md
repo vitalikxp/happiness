@@ -41,11 +41,11 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 
 **DoD:** 1000-game sim runs < 1 min, report produced, linter in CI.
 
-## M4 — Fantasy pack v1
-- [ ] Terms, rules.json, locales/ru.json
-- [ ] Cards per `CONTENT.md §4` (can land in batches: jobs+partners → projects → items → traits+goals)
-- [ ] Biography templates
-- [ ] Balance pass: sim targets from BALANCE.md met or deviations documented
+## M4 — Fantasy pack v1 ✅
+- [x] Terms, rules, Russian texts (assembled from the cards; `src/content/packs/fantasy/`)
+- [x] Cards per `CONTENT.md §4` (base sets; unlockable traits/goals → M6)
+- [x] Biography templates (generator → M5)
+- [x] Balance pass: sim targets from BALANCE.md met (BALANCE §6)
 
 **DoD:** linter clean (or justified), sim within targets.
 
@@ -55,7 +55,7 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 - [ ] «Книжная миниатюра» theme (CSS/SVG), card component (data-driven), icons, tooltips, previews,
   "can't because…" hints
 - [ ] Turn flow with bot animation; pending decisions (upkeep, roles, trait choice)
-- [ ] Log + end-of-life screen (score breakdown + biography)
+- [ ] Log + end-of-life screen (score breakdown + biography generated from the pack's `bio.*` templates)
 - [ ] Playwright smoke: full solo game
 
 **DoD:** a person can play a full solo game and a game vs 3 bots without dev tools.
@@ -63,7 +63,7 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 ## M6 — Polish & release
 - [ ] Save/resume, undo within turn, settings (bot count/difficulty, variants)
 - [ ] Personal records & life history (R-META-01)
-- [ ] Achievements & unlockable Child Traits / Life Goals (R-META-02, R-META-03)
+- [ ] Achievements & unlockable Child Traits (~4) / Life Goals (~3) (R-META-02, R-META-03)
 - [ ] Tutorial / first-game hints; accessibility pass
 - [ ] Art pass: style guide + AI-generated illustrations with CREDITS; sound (optional)
 - [ ] Deploy to static hosting

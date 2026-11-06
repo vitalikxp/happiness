@@ -55,12 +55,12 @@ Partner levels: Знакомство → Ухаживание → Союз → �
 
 | Deck | Count | Composition notes |
 |---|---|---|
-| Projects | 48 | ~30 basic, ~10 single-round (турниры, ярмарки, состязания бардов), ~8 group (походы: роли Воин / Маг / Лекарь / Следопыт и т.п.). **≥8 grant Good Health** (паломничество, травничество, обучение у монахов…) |
+| Projects | 48 | 30 basic (9 grant Good Health: паломничество, травничество, обучение у монахов…), 10 single-round (турниры, ярмарки, состязания бардов), 8 group (походы: роли Воин / Маг / Лекарь / Следопыт и т.п.) |
 | Items & Activities | 40 | ~24 items (конь, дом, библиотека, мастерская, доспех, корабль), ~16 activities (пир, ярмарка, охота, театр) |
 | Jobs | 18 | 3 tracks × 3 levels × 2 variants |
 | Partners | 12 | Double-sided: two versions (different gender, name, portrait) with identical mechanics. Diverse races/temperaments; each with level requirements and a distinct "taste" (wants Мудрость / Славу / Золото…) |
-| Child Traits | 8 base + ~4 unlockable | e.g. «Рождён в грозу», «Под звездой мудреца», «Дитя кузницы» |
-| Life Goals | 9 base + ~3 unlockable | e.g. «Архимаг» (most knowledge projects done), «Легенда таверн», «Большая семья», «Богатое наследство» |
+| Child Traits | 8 base (+ ~4 unlockable in M6) | «Под звездой мудреца», «Дитя кузницы», «Гроза в ночь рождения»… |
+| Life Goals | 9 base (+ ~3 unlockable in M6) | «Хранитель знаний», «Большая семья», «Богатое наследство», «Долгожитель»… |
 
 Each card should cover a **category tag** (thematic: arcane, craft, martial, court, trade, nature, faith)
 so bot personalities and the biography can use it.
@@ -73,8 +73,20 @@ so bot personalities and the biography can use it.
 4. Biography line per level/outcome, e.g. «В 30 лет выковала клинок, о котором пели барды».
 5. No resemblance to an original card's name/structure beyond the generic mechanic.
 
-## 6. Biography generation
+## 6. Texts and biography
 
-Events in the log carry `{ actor, cardId, level, round }`; the pack provides templates per card/level
-and per life stage. Template-based and deterministic; grammatical gender from the character
-(player's own and the chosen Partner version). An LLM-written epilogue is a post-v1 idea only.
+**Authoring.** Each card is written together with its Russian texts (`src/content/packs/fantasy/*.ts`,
+helpers in `define.ts`); the pack's `locales.ru` is assembled from them plus `texts.ts` (terms, board,
+stages, biography). Numbers come from small per-kind templates tuned to the budget bands, so balance
+changes happen in one place.
+
+**Keys** (checked by `validatePack`, list in `src/content/text.ts`):
+- per card: `<id>.name`, `<id>.flavor`; levels `<id>.l1…l4`; group roles `<id>.role1…4`; partners
+  `<id>.v0.name` / `<id>.v1.name` (female / male version);
+- pack-wide: `term.*`, `stage.*`, `space.*`, `partnerLevel.1…4`, `track.*`, `bio.age.1…8`, and the
+  `bio.*` event templates in `.f` / `.m` variants.
+
+**Biography.** Deterministic, built from the event log with `bio.*` templates (generator in M5).
+Placeholders: `{age} {name} {card} {level} {partner} {lth}`. Names are inserted in the nominative
+case, so templates must never need another case for `{name}` / `{partner}` (write «{name} и {partner}
+заключили союз», not «…с {partner}»). An LLM-written epilogue is a post-v1 idea only.
