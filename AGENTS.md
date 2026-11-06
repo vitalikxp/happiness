@@ -71,9 +71,13 @@ pnpm test:watch       # Vitest watch mode
 pnpm lint             # ESLint (incl. layer boundaries & determinism rules) + Prettier check
 pnpm format           # Prettier write
 pnpm typecheck        # tsc -b (app + node configs)
+pnpm sim --games 1000 --bots greedy,greedy:family,random --seed 1 [--pack core-test] [--json out.json]
+                      # headless bot games in worker threads → balance report (BALANCE.md §4)
+pnpm budget [--pack core-test] [--all]   # card budget report vs value model (BALANCE.md §3)
 ```
 
-Planned (M3): `pnpm sim --games 1000 --bots greedy,greedy --seed 1` — headless balance simulation.
+CLI tools in `src/sim/` run directly on Node's TypeScript support (no build step), so TS must stay
+erasable-only (no enums, namespaces or constructor parameter properties).
 
 Layer boundaries and engine purity (rule 2, `docs/ARCHITECTURE.md §2`) are enforced by ESLint in
 `eslint.config.js` — don't disable those rules; change the architecture doc first if a boundary must move.

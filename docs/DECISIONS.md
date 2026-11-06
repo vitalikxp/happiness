@@ -69,3 +69,13 @@ leave play for good go to a per-player `archive` (used by Life Goals); discarded
 to their row's discard pile. (4) `previewAction` is computed from events, not state diffs, so it stays
 correct when an action ends the round and never leaks hidden cards. (5) Solo: achieved Life Goals also
 pay their LTH. **Consequences:** Every payment emits a `paid` event; the round end emits `roundEnding`.
+
+## ADR-013 — Bots and simulator (2026-11-06)
+**Decision:** (1) Bots may read content data (`ai → engine, content`) — card definitions are public
+information. (2) Greedy = 1-ply over `previewAction` + value model + future heuristics; stateless with a
+seed-derived RNG per decision. (3) The simulator is a Node CLI run via Node's built-in TypeScript
+stripping (`erasableSyntaxOnly` in tsconfig), parallel in worker threads, with reports independent of
+the worker count. (4) Budget bands live in `src/content/budget.ts`; packs opt out with `budgetLint:
+false` (core-test), single cards with `balanceNote`. (5) Node APIs are allowed only in `src/sim/`.
+**Consequences:** Faster engine transitions (shared log). Greedy is a baseline, not a strong player;
+a planner bot remains for later.
