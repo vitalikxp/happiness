@@ -1,6 +1,6 @@
 # Game Design Document
 
-Status: **draft v0.1** · Owner: project author · Engine terms are canonical; Russian fantasy display
+Title: **«Дорога к счастью»** (EN: *Road to Happiness*) · Status: **draft v0.2** · Owner: project author · Engine terms are canonical; Russian fantasy display
 names come from the content pack (see `CONTENT.md`).
 
 Rule IDs (`R-<AREA>-<NN>`) are referenced from tests and code comments. Never renumber an existing ID;
@@ -70,6 +70,7 @@ trends, pets, community) — keep the architecture open for them (`OPEN_QUESTION
 ## 4. Setup
 
 - **R-SET-01** Players: 1 human + 0–3 bots (total 1–4). Solo mode = 1 human, no bots.
+  "Quick game" default: 1 human + 2 `greedy` bots.
 - **R-SET-02** Shuffle each deck with the game seed.
 - **R-SET-03** Each player: Time = `startTime` *(tunable, default 6)*, Stress at the first space of
   the starting zone, STH at center, LTH = 0.
@@ -78,7 +79,9 @@ trends, pets, community) — keep the architecture open for them (`OPEN_QUESTION
   unavailable in Youth.
 - **R-SET-06** Deal 2 Child Traits per player; each keeps 1 (bots choose via policy), gains its
   starting resources and its passive ability for the whole game.
-- **R-SET-07** First player: the human in solo/vs-bots (or seeded random — see OPEN_QUESTIONS).
+- **R-SET-07** First player: the human in solo/vs-bots.
+- **R-SET-08** The human creates a character: name, grammatical gender, portrait. Pure flavor — no
+  mechanical effect (mechanical variety comes from Child Traits). Bots get generated names/portraits.
 
 ---
 
@@ -170,7 +173,7 @@ and levels/roles with `cost`, `reward`, optional `upkeep` and `requirement`.
     Max 2 roles per player per project.
   - **R-PRJ-G-03** End of Round: for each role a player holds, they gain the bonus rewards listed
     for tiers 1..N where N = number of covered roles.
-  - **R-PRJ-G-04** Group Projects do not occupy slots *(confirm — OPEN_QUESTIONS Q-07)*.
+  - **R-PRJ-G-04** Group Projects do not occupy slots (like Single-Round Projects, they last one round).
 
 ### 7.2 Items & Activities
 
@@ -194,6 +197,8 @@ and levels/roles with `cost`, `reward`, optional `upkeep` and `requirement`.
 - **R-REL-03** Advance (via Develop Relationship): only to the next level; must meet that level's
   **requirement** (resource thresholds held, not paid). Gain its reward.
 - **R-REL-04** Upkeep grows with level (typically includes Time). Unpaid ⇒ breakup (R-UPK-07).
+- **R-REL-05** Partner cards are double-sided: two versions (different gender, name, portrait) with
+  identical mechanics. When taking a Partner the player chooses the version; bots choose by seeded policy.
 
 ### 7.5 Child Traits
 
@@ -236,7 +241,7 @@ Zones left→right *(tunable, initial proposal — BALANCE.md)*:
 - **R-STH-01** Track from `−sthRange` to `+sthRange` *(default ±5)*; starts at 0 every round.
 - **R-STH-02** When advancing a Basic Project level, pay 1 fewer resource of your choice per positive
   STH point (doesn't consume STH; applies to every advance this round). Negative STH ⇒ pay 1 extra
-  resource of your choice per point *(original behavior per reviews — confirm Q-08)*.
+  resource of your choice per point. Total cost per resource type cannot go below 0.
 - **R-STH-03** Overflow beyond the track ends converts to ±LTH.
 - **R-STH-04** Used for first-player order (R-END-04) and market refresh (R-ACT-04).
 
@@ -247,8 +252,10 @@ Zones left→right *(tunable, initial proposal — BALANCE.md)*:
 - **R-DTH-01** A player dies by R-STR-05, or at the end of the last round (round 8) if still alive.
 - **R-DTH-02** Inheritance at death: +1 LTH per 5 of each basic resource and per 5 money
   (computed per type, floor).
-- **R-DTH-03** When all players are dead: score Life Goals (R-LG-01). Highest LTH wins. Tie-break: TBD (Q-09).
-- **R-DTH-04** The end screen shows LTH breakdown by source and a generated **biography** (event log → narrative).
+- **R-DTH-03** When all players are dead: score Life Goals (R-LG-01). Highest LTH wins. Tie-break: most
+  resources + money held at death (sum of all types); still tied ⇒ shared victory.
+- **R-DTH-04** The end screen shows LTH breakdown by source and a **biography** built from the event
+  log with pack-provided templates (deterministic, offline).
 
 ---
 
@@ -256,7 +263,7 @@ Zones left→right *(tunable, initial proposal — BALANCE.md)*:
 
 - **R-SOLO-01** Setup as a 2-player market, no opponents, 3 Life Goals.
 - **R-SOLO-02** Win = achieve all 3 solo Life Goal conditions **and** LTH ≥ `soloWinLth` *(default 50)*.
-- **R-SOLO-03** Also report a score so players can chase personal bests (and a seeded "daily life" — Q-05).
+- **R-SOLO-03** Also report a score so players can chase personal bests (§15).
 
 ---
 
@@ -289,5 +296,21 @@ Mechanics stay close to the original by default. Deviations are **config flags**
 - Every action/card shows: cost, reward, upkeep, slot/stress impact, and "can't because…" reasons.
 - Hover/tap previews; undo within own turn until the action is confirmed (engine supports by replay).
 - Event log in natural language; end-of-life biography and score breakdown.
-- Desktop first, usable on mobile (≥360px) — Q-04.
+- **Desktop only** in v1 (target ≥ 1280×720; mouse + keyboard). Mobile is not supported.
+- Visual style: «книжная миниатюра» — parchment, initials, ornaments, vector icons in CSS/SVG.
 - Save/resume (seed + action log in localStorage).
+
+---
+
+## 15. Meta-progression (outside a single game)
+
+Lives a player has lived persist in the browser (localStorage, per device).
+
+- **R-META-01** Personal records & life history: best score (solo and vs bots), archive of past lives
+  (seed, character, final LTH breakdown, biography). Any archived life can be replayed from seed + log.
+- **R-META-02** Achievements: pure predicates over a finished game (final state + event log),
+  e.g. «Дожить до конца Старости», «Стать архимагом». Evaluated after the game, never during it.
+- **R-META-03** Unlockable content: some Child Traits and Life Goals are locked until an achievement
+  unlocks them. The **base set is always available and sufficient**; unlocks add variety, not power —
+  unlockable cards pass the same budget linter. The unlocked set is part of `GameSetup`, so the engine
+  stays deterministic.

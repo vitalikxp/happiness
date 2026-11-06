@@ -47,8 +47,10 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 **DoD:** linter clean (or justified), sim within targets.
 
 ## M5 — Playable UI
-- [ ] Board layout: market rows, action spaces, tracks, own tableau, opponents panel
-- [ ] Card component (data-driven), icons, tooltips, previews, "can't because…" hints
+- [ ] New game screen: character creation (name, gender, portrait), quick game = 2 greedy bots
+- [ ] Board layout (desktop): market rows, action spaces, tracks, own tableau, opponents panel
+- [ ] «Книжная миниатюра» theme (CSS/SVG), card component (data-driven), icons, tooltips, previews,
+  "can't because…" hints
 - [ ] Turn flow with bot animation; pending decisions (upkeep, roles, trait choice)
 - [ ] Log + end-of-life screen (score breakdown + biography)
 - [ ] Playwright smoke: full solo game
@@ -57,10 +59,12 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 
 ## M6 — Polish & release
 - [ ] Save/resume, undo within turn, settings (bot count/difficulty, variants)
-- [ ] Tutorial / first-game hints; accessibility pass; mobile layout
-- [ ] Art pass (per OPEN_QUESTIONS Q-03); sound (optional)
+- [ ] Personal records & life history (R-META-01)
+- [ ] Achievements & unlockable Child Traits / Life Goals (R-META-02, R-META-03)
+- [ ] Tutorial / first-game hints; accessibility pass
+- [ ] Art pass: style guide + AI-generated illustrations with CREDITS; sound (optional)
 - [ ] Deploy to static hosting
 
 ## Later (not v1)
-Planner bot (MCTS), hot-seat, online multiplayer, more packs (sci-fi, modern), events/trends modules,
-daily seeded challenge, LLM-written epilogue.
+Planner bot (MCTS), hot-seat, online multiplayer, mobile layout, more packs (sci-fi, modern),
+events/trends modules, daily seeded challenge, LLM-written epilogue.
