@@ -8,7 +8,11 @@ display names, icons, cards, texts and tunable numbers. First pack: **`fantasy`*
 - All card names, texts, flavor and numbers are written fresh for this project.
 - Don't mirror the original's card list one-to-one (no "fantasy reskin" of each original card).
   Design cards from the setting outward, then fit them to the value model.
-- Art: original or properly licensed only; record source/license per asset in `art/CREDITS.md`.
+- Art: AI-generated in one consistent style (style guide in `art/STYLE.md`: palette, line, framing,
+  prompt template), curated by hand. Record per asset in `art/CREDITS.md`: tool/model, prompt, date,
+  license terms. Never prompt with the original game's name, artist or card titles.
+- v1 UI works without illustrations («книжная миниатюра» in CSS/SVG); cards reference art by id and the
+  renderer falls back to an ornament/initial.
 
 ## 2. Setting: «classic fantasy», tone
 
@@ -54,9 +58,9 @@ Partner levels: Знакомство → Ухаживание → Союз → �
 | Projects | 48 | ~30 basic, ~10 single-round (турниры, ярмарки, состязания бардов), ~8 group (походы: роли Воин / Маг / Лекарь / Следопыт и т.п.). **≥8 grant Good Health** (паломничество, травничество, обучение у монахов…) |
 | Items & Activities | 40 | ~24 items (конь, дом, библиотека, мастерская, доспех, корабль), ~16 activities (пир, ярмарка, охота, театр) |
 | Jobs | 18 | 3 tracks × 3 levels × 2 variants |
-| Partners | 12 | Diverse races/temperaments; each with level requirements and a distinct "taste" (wants Мудрость / Славу / Золото…) |
-| Child Traits | 8 | e.g. «Рождён в грозу», «Под звездой мудреца», «Дитя кузницы» |
-| Life Goals | 9 | e.g. «Архимаг» (most knowledge projects done), «Легенда таверн», «Большая семья», «Богатое наследство» |
+| Partners | 12 | Double-sided: two versions (different gender, name, portrait) with identical mechanics. Diverse races/temperaments; each with level requirements and a distinct "taste" (wants Мудрость / Славу / Золото…) |
+| Child Traits | 8 base + ~4 unlockable | e.g. «Рождён в грозу», «Под звездой мудреца», «Дитя кузницы» |
+| Life Goals | 9 base + ~3 unlockable | e.g. «Архимаг» (most knowledge projects done), «Легенда таверн», «Большая семья», «Богатое наследство» |
 
 Each card should cover a **category tag** (thematic: arcane, craft, martial, court, trade, nature, faith)
 so bot personalities and the biography can use it.
@@ -72,5 +76,5 @@ so bot personalities and the biography can use it.
 ## 6. Biography generation
 
 Events in the log carry `{ actor, cardId, level, round }`; the pack provides templates per card/level
-and per life stage. v1: template-based, grammatical gender chosen per player (player picks it at
-start). Possible later: LLM-written epilogue (Q-10).
+and per life stage. Template-based and deterministic; grammatical gender from the character
+(player's own and the chosen Partner version). An LLM-written epilogue is a post-v1 idea only.

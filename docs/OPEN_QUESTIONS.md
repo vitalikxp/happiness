@@ -5,25 +5,24 @@ the owner. When resolved: record the answer, update GDD/DECISIONS, move the entr
 
 ## Open
 
-- **Q-01 Working title.** Repo name is `happiness`. RU title candidates: «Путь к счастью», «Летопись
-  одной жизни», «Свеча и корона»… Needed before M5 (UI) — not blocking engine work.
-- **Q-02 Visual style.** Flat vector/CSS+SVG icons (cheap, consistent) vs illustrated cards (AI-generated
-  or commissioned) vs "storybook" style. Affects card component design (M5) and asset pipeline.
-- **Q-03 Art source & licensing** if illustrations are used.
-- **Q-04 Platform priority.** Desktop-first with mobile support, or mobile-first?
-- **Q-05 Replay hooks.** Daily seeded life? Personal records/achievements? Unlockable traits?
-- **Q-06 Bot count & difficulty UX.** Default opponents in "quick game": 2 greedy bots?
-- **Q-07 Group Projects and slots.** Original text doesn't say they take a slot; confirm treatment.
-- **Q-08 Negative STH.** Does negative STH increase project advance costs (reviews suggest yes; rulebook
-  only describes the discount)? Default proposal: yes, +1 resource per negative point.
-- **Q-09 Final tie-break** (multiplayer): proposal — most resources left, then shared victory.
-- **Q-10 Biography generation.** Templates only (v1) vs optional LLM epilogue (needs network/API key — conflicts with no-backend).
-- **Q-11 Partners & representation.** Original uses double-sided male/female partner cards. Proposal:
-  each partner is a single character (diverse races/genders); player picks own character gender for grammar.
-- **Q-12 Player character.** Does the player pick a name/race/portrait at start (pure flavor) or does race
-  have mechanical effect (like Child Traits)?
+- **Q-13 Achievement list & unlocks.** Which achievements exist and which Child Traits / Life Goals each
+  unlocks. Needed before M6.
+- **Q-14 Art style guide.** Palette, references, prompt template for AI illustrations. Needed before the M6 art pass.
 
-## Resolved
+## Resolved (2026-11-06, see ADR-010)
 
-- **v1 mode** → solo + bots (ADR-006). **Stack** → TS+Vite+Preact, pnpm (ADR-002, ADR-008). **Language** → docs EN, UI RU
-  (ADR-005). **Originality** → close mechanics, own modular content, fantasy first (ADR-001, ADR-004).
+- **Q-01 Title** → «Дорога к счастью» (EN: *Road to Happiness*).
+- **Q-02 Visual style** → «книжная миниатюра» in CSS/SVG.
+- **Q-03 Art source** → AI-generated, one style guide, credits per asset.
+- **Q-04 Platform** → desktop only in v1.
+- **Q-05 Replay hooks** → personal records & life history, achievements, unlockable content (GDD §15).
+- **Q-06 Quick game** → 1 human + 2 `greedy` bots.
+- **Q-07 Group Projects** → don't occupy slots (R-PRJ-G-04).
+- **Q-08 Negative STH** → +1 resource per negative point on project advances (R-STH-02).
+- **Q-09 Tie-break** → most resources + money at death, then shared victory (R-DTH-03).
+- **Q-10 Biography** → templates only; LLM epilogue post-v1.
+- **Q-11 Partners** → double-sided cards, player picks the version (R-REL-05).
+- **Q-12 Player character** → name, gender, portrait; no mechanics (R-SET-08).
+- Earlier: v1 mode → solo + bots (ADR-006); stack → TS+Vite+Preact, pnpm (ADR-002, ADR-008);
+  language → docs EN, UI RU (ADR-005); originality → close mechanics, own modular content, fantasy
+  first (ADR-001, ADR-004).

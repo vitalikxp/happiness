@@ -26,6 +26,8 @@ src/
   ai/         Bots. Depends on engine public API only.
   sim/        Headless CLI: runs N games bot-vs-bot, prints balance report. Depends on engine, ai, content.
   ui/         Preact app: components, hooks, i18n, animation. Depends on engine API, content, ai.
+  meta/       Achievements & unlock rules: pure functions over finished games (added in M6).
+              Depends on engine, content. Persistence (localStorage) lives in ui/.
   shared/     Small utilities (no game logic).
 ```
 
@@ -133,6 +135,8 @@ content/packs/fantasy/
   (`getLegalActions`, `explainIllegal`, `previewAction`).
 - Bots run in a Web Worker (later) with an artificial delay + animation for readability.
 - Card rendering: data-driven component (icons for resources, cost → reward layout reading left→right).
+- Desktop only (≥ 1280×720). Style «книжная миниатюра» built from CSS/SVG; illustrations optional by art id.
+- `GameSetup` carries the character profile (name, gender, portrait) and the unlocked content ids.
 - Accessibility: keyboard play, text alternatives for icons, color-blind-safe tracks.
 
 ## 6. Testing strategy

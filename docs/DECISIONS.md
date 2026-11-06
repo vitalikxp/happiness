@@ -44,3 +44,11 @@ package manager: `pnpm-lock.yaml` committed, `packageManager` pinned, CI uses `p
 **Decision:** Pin TypeScript `~6.0`, `@babel/core` `^7`; Vite 8, Vitest 5, ESLint 10 (flat config).
 i18n is a small typed module on `@preact/signals` instead of an i18n library (no `preact/compat` needed,
 keys type-checked). **Consequences:** Upgrade TS to 7 once typescript-eslint supports it.
+
+## ADR-010 — Product decisions from the open-questions round (2026-11-06)
+**Decision:** Title «Дорога к счастью»; desktop-only v1; «книжная миниатюра» CSS/SVG style, AI-generated
+illustrations later under a style guide; quick game = 2 greedy bots; template biographies; player character
+is flavor only; double-sided Partner cards; meta-progression (records, life history, achievements,
+unlockable traits/goals). Rule answers: Q-07, Q-08, Q-09 (see GDD rule IDs in OPEN_QUESTIONS).
+**Consequences:** New `meta/` layer (M6); unlockables must not add power and must keep the engine
+deterministic (unlocked set is part of `GameSetup`); mobile layout moved to "Later".
