@@ -1,5 +1,12 @@
 // Pure, deterministic game rules (docs/ARCHITECTURE.md §3). Public API only — internals stay private.
-export { applyAction, createGame, explainIllegal, getLegalActions, replay } from './game.ts';
+export {
+  applyAction,
+  createGame,
+  explainIllegal,
+  getCandidateActions,
+  getLegalActions,
+  replay,
+} from './game.ts';
 export { isSpaceOpen } from './actions.ts';
 export { previewAction, type PlayerDelta, type Preview } from './preview.ts';
 export {

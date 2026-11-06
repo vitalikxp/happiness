@@ -112,6 +112,7 @@ export function addToTableau(
     cardId,
     instanceId: entry.instanceId,
     level: entry.level,
+    version: entry.version,
   });
   return entry;
 }

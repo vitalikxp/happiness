@@ -165,6 +165,8 @@ export type GameEvent =
       cardId: CardId;
       instanceId: string;
       level: number | null;
+      /** Partner version (R-REL-05), `null` for other cards. */
+      version: 0 | 1 | null;
     }
   | { type: 'groupRoleTaken'; player: PlayerId; instanceId: string; role: number }
   | { type: 'levelReached'; player: PlayerId; instanceId: string; cardId: CardId; level: number }

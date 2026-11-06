@@ -93,6 +93,19 @@ export function getLegalActions(
   );
 }
 
+/**
+ * Every action the player could try now, legal or not — lets the UI show unavailable options with
+ * their reasons (`explainIllegal`). Use `getLegalActions` to decide what is allowed.
+ */
+export function getCandidateActions(
+  state: GameState,
+  content: ContentIndex,
+  player: PlayerId,
+): Action[] {
+  const self = state.players.find((p) => p.id === player);
+  return self ? candidateActions(state, content, self) : [];
+}
+
 /** Reasons the action is illegal (empty if legal) — for "can't because…" hints. */
 export function explainIllegal(
   state: GameState,
