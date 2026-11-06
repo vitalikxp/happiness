@@ -59,7 +59,8 @@ describe('death & end of game', () => {
           p.lth = lth[i] ?? 0;
           p.resources = { knowledge: 0, creativity: 0, influence: 0, money: money[i] ?? 0 };
         });
-        finishGame(d);
+        d.lifeGoals = []; // isolate the tie-break from Life Goal scoring
+        finishGame(d, content);
       });
     expect(ended([10, 12, 3], [0, 0, 0]).result?.winners).toEqual(['p1']);
     expect(ended([12, 12, 3], [1, 4, 9]).result).toMatchObject({

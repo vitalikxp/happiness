@@ -1,8 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { countSlots } from './flow.ts';
+import { countSlots } from './cards.ts';
 import { rowSize } from './market.ts';
 import { stageOf } from './state.ts';
-import { act, content, edit, finishRound, place, playerOf, rules, startedGame } from './testing.ts';
+import {
+  act,
+  content,
+  edit,
+  finishRound,
+  place,
+  playerOf,
+  rules,
+  startedGame,
+  tableauCard,
+} from './testing.ts';
 import type { GameState } from './types.ts';
 
 const toRound = (state: GameState, round: number): GameState => {
@@ -100,11 +110,11 @@ describe('rounds & life stages', () => {
       const p0 = d.players[0];
       if (!p0) return;
       p0.tableau = [
-        { instanceId: 'a', cardId: project, level: 1 },
-        { instanceId: 'b', cardId: project, level: 1 },
-        { instanceId: 'c', cardId: partner, level: 1 },
-        { instanceId: 'd', cardId: partner, level: 1 },
-        { instanceId: 'e', cardId: 'core-test.item.horse', level: 1 },
+        tableauCard('a', project),
+        tableauCard('b', project),
+        tableauCard('c', partner),
+        tableauCard('d', partner),
+        tableauCard('e', 'core-test.item.horse'),
       ];
     });
     expect(countSlots(content, playerOf(state, 'p0'))).toEqual({ slots: 4, partners: 2 });
@@ -158,7 +168,7 @@ describe('action phase', () => {
 
   it('R-ACT-05: discarding an own card costs 1 Stress and 1 STH, without ending the turn', () => {
     const state = edit(startedGame(1), (d) => {
-      d.players[0]?.tableau.push({ instanceId: 'x', cardId: 'core-test.item.horse', level: 1 });
+      d.players[0]?.tableau.push(tableauCard('x', 'core-test.item.horse'));
     });
     const next = act(state, { type: 'discardCard', player: 'p0', instanceId: 'x' });
     expect(playerOf(next, 'p0')).toMatchObject({ tableau: [], stress: 4, sth: -1 });

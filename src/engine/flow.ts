@@ -5,12 +5,16 @@ import {
   type BoardSpaceId,
   type ContentIndex,
 } from '../content/index.ts';
+import { archive, cardOf, countSlots } from './cards.ts';
+import { applyReward } from './effects.ts';
+import { scoreLifeGoals } from './lifeGoals.ts';
 import { redrawRow, rowSize } from './market.ts';
-import { clockwiseFrom, emit, stageOf } from './state.ts';
+import { clockwiseFrom, emit, getPlayer, stageOf } from './state.ts';
 import { addStress, killPlayer, timeForRound } from './tracks.ts';
+import { beginUpkeepDecisions } from './upkeep.ts';
 import type { GameResult, GameState, PlayerState } from './types.ts';
 
-// Round structure: Upkeep → Action → End of Round (GDD §5). Phases without decisions run automatically.
+// Round structure: Upkeep → Action → End of Round (GDD §5). Steps without decisions run automatically.
 
 export function emptyPlacements(): Record<BoardSpaceId, string[]> {
   return Object.fromEntries(BOARD_SPACES.map((space) => [space, []])) as unknown as Record<
@@ -21,7 +25,7 @@ export function emptyPlacements(): Record<BoardSpaceId, string[]> {
 
 const alivePlayers = (draft: GameState) => draft.players.filter((p) => p.alive);
 
-/** Upkeep phase of `round` (R-UPK-*), then hand over to the Action phase. */
+/** Automatic part of the Upkeep phase of `round` (R-UPK-01…05), then upkeep decisions. */
 export function beginRound(draft: GameState, content: ContentIndex, round: number): void {
   const { rules } = content;
   draft.round = round; // R-UPK-01 (stage transitions are derived from the round)
@@ -47,33 +51,30 @@ export function beginRound(draft: GameState, content: ContentIndex, round: numbe
     emit(draft, { type: 'timeSet', player: player.id, time: player.time });
     // R-UPK-05
     const { slots, partners } = countSlots(content, player);
-    addStress(draft, rules, player, Math.max(0, slots - rules.slotLimit), 'overload');
-    addStress(draft, rules, player, Math.max(0, partners - 1), 'overload');
+    const overload =
+      Math.max(0, slots - rules.slotLimit) * rules.slotOverloadStress +
+      Math.max(0, partners - 1) * rules.extraPartnerStress;
+    addStress(draft, rules, player, overload, 'overload');
   }
-  // R-UPK-06, R-UPK-07 (upkeep payments) arrive with card mechanics in M2.
 
   if (alivePlayers(draft).length === 0) {
-    finishGame(draft);
+    finishGame(draft, content);
+    return;
+  }
+  // R-UPK-06: players with upkeep decide card by card; the Action phase starts afterwards.
+  if (!beginUpkeepDecisions(draft, content)) beginActionPhase(draft, content);
+}
+
+/** After Upkeep: the first player with Time acts (R-ACT-01). */
+export function beginActionPhase(draft: GameState, content: ContentIndex): void {
+  draft.pending = null;
+  if (alivePlayers(draft).length === 0) {
+    finishGame(draft, content);
     return;
   }
   draft.phase = 'action';
   draft.current = nextToAct(draft, draft.firstPlayer, true);
   if (draft.current === null) endRound(draft, content);
-}
-
-/** Basic Projects, the Job and Partners occupy slots (R-UPK-05, R-PRJ-01). */
-export function countSlots(
-  content: ContentIndex,
-  player: PlayerState,
-): { slots: number; partners: number } {
-  let slots = 0;
-  let partners = 0;
-  for (const entry of player.tableau) {
-    const kind = content.cards.get(entry.cardId)?.kind;
-    if (kind === 'basicProject' || kind === 'job' || kind === 'partner') slots++;
-    if (kind === 'partner') partners++;
-  }
-  return { slots, partners };
 }
 
 /** First living player with Time, clockwise from `from` (R-ACT-01, R-ACT-03). */
@@ -90,10 +91,39 @@ export function advanceTurn(draft: GameState, content: ContentIndex): void {
   if (draft.current === null) endRound(draft, content);
 }
 
+/** R-END-01: each held role pays the bonus tiers 1…N, N = covered roles. */
+function payGroupBonuses(draft: GameState, content: ContentIndex): void {
+  for (const owner of draft.players) {
+    for (const entry of owner.tableau) {
+      const card = cardOf(content, entry.cardId, ['groupProject']);
+      if (!card || !entry.roles) continue;
+      const covered = entry.roles.filter((holder) => holder !== null).length;
+      for (const holder of entry.roles) {
+        if (holder === null) continue;
+        const player = getPlayer(draft, holder);
+        for (const tier of card.bonus.slice(0, covered)) {
+          applyReward(draft, content.rules, player, tier, 'projects');
+        }
+      }
+    }
+  }
+}
+
+const ONE_ROUND_KINDS = new Set(['singleRoundProject', 'groupProject', 'activity']);
+
 /** End of Round (R-END-*), then the next round or the end of the game. */
 export function endRound(draft: GameState, content: ContentIndex): void {
   const { rules } = content;
-  // R-END-01, R-END-02 (group bonuses, setting cards aside) arrive with card mechanics in M2.
+  emit(draft, { type: 'roundEnding', round: draft.round });
+  payGroupBonuses(draft, content);
+  // R-END-02
+  for (const player of draft.players) {
+    for (const entry of [...player.tableau]) {
+      if (ONE_ROUND_KINDS.has(content.cards.get(entry.cardId)?.kind ?? '')) {
+        archive(draft, player, entry);
+      }
+    }
+  }
 
   // R-END-03: Time placed on board spaces comes back (new markers are dealt in Upkeep).
   draft.placements = emptyPlacements();
@@ -115,17 +145,18 @@ export function endRound(draft: GameState, content: ContentIndex): void {
     for (const player of alivePlayers(draft)) killPlayer(draft, rules, player, 'endOfLife');
   }
   if (alivePlayers(draft).length === 0) {
-    finishGame(draft);
+    finishGame(draft, content);
     return;
   }
   beginRound(draft, content, draft.round + 1);
 }
 
-/** R-DTH-03 (Life Goal scoring, R-LG-01, arrives in M2). */
-export function finishGame(draft: GameState): void {
+/** R-LG-01 / R-SOLO-02, then R-DTH-03 standings. */
+export function finishGame(draft: GameState, content: ContentIndex): void {
   draft.phase = 'gameOver';
   draft.current = null;
   draft.pending = null;
+  const goals = scoreLifeGoals(draft, content);
   const standings = draft.players
     .map((p) => ({
       player: p.id,
@@ -139,7 +170,7 @@ export function finishGame(draft: GameState): void {
         .filter((s) => s.lth === top.lth && s.leftovers === top.leftovers)
         .map((s) => s.player)
     : [];
-  const result: GameResult = { standings, winners };
+  const result: GameResult = { standings, winners, ...goals };
   draft.result = result;
   emit(draft, { type: 'gameOver', result });
 }

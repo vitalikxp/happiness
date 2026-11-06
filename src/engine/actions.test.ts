@@ -15,7 +15,11 @@ const adult = () => finishRound(startedGame(1));
 
 describe('board actions', () => {
   it('R-A-STUDY, R-A-PLAY, R-A-INTERACT, R-A-TEMP: +3 of the matching resource', () => {
-    const start = startedGame(1);
+    // Without a Child Trait, so no trigger adds to the yield.
+    const start = edit(startedGame(1), (d) => {
+      const p0 = d.players[0];
+      if (p0) p0.childTrait = null;
+    });
     const base = playerOf(start, 'p0').resources;
     let state = start;
     for (const space of ['study', 'play', 'interact', 'tempJob'] as const)
@@ -69,13 +73,29 @@ describe('board actions', () => {
     expect(at(7)).toBe(7);
   });
 
-  it('card-driven board spaces are not implemented yet (Roadmap M2)', () => {
+  it('card-driven board spaces need a matching choice; basic ones take none', () => {
     const state = adult();
     for (const space of ['takeProject', 'spend', 'getJob', 'developRelationship'] as const) {
       expect(explainIllegal(state, content, { type: 'placeTime', player: 'p0', space })).toEqual([
-        { code: 'notImplemented' },
+        { code: 'missingChoice' },
       ]);
     }
+    expect(
+      explainIllegal(state, content, {
+        type: 'placeTime',
+        player: 'p0',
+        space: 'study',
+        choice: { kind: 'job', card: 'x' },
+      }),
+    ).toEqual([{ code: 'unexpectedChoice' }]);
+    expect(
+      explainIllegal(state, content, {
+        type: 'placeTime',
+        player: 'p0',
+        space: 'spend',
+        choice: { kind: 'job', card: 'x' },
+      }),
+    ).toEqual([{ code: 'unexpectedChoice' }]);
   });
 
   it('only the current living player may act, only in the Action phase', () => {
