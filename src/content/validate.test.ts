@@ -54,7 +54,7 @@ describe('validatePack', () => {
     ]);
   });
 
-  it('requires promotions below the top job level only, and every track × level', () => {
+  it('R-JOB-01: requires every track × level, and promotions below the top level only', () => {
     const pack = clonePack();
     delete at(pack.cards.jobs, 0).promotion;
     pack.cards.jobs.splice(8, 1);
