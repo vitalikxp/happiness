@@ -1,7 +1,15 @@
-import { useEffect } from 'preact/hooks';
-import { LOCALES, locale, t } from './i18n/index.ts';
+import { useEffect, useMemo } from 'preact/hooks';
+import { Board } from './components/Board.tsx';
+import { TraitChoice, UpkeepPanel } from './components/Decisions.tsx';
+import { EndScreen } from './components/EndScreen.tsx';
+import { NewGame } from './components/NewGame.tsx';
+import { content } from './content.ts';
+import { locale, t } from './i18n/index.ts';
+import { optionsFor } from './options.ts';
+import { isHumanTurn, session } from './session.ts';
 
 export function App() {
+  const current = session.value;
   const title = t('app.title');
 
   useEffect(() => {
@@ -9,26 +17,36 @@ export function App() {
     document.documentElement.lang = locale.value;
   }, [title]);
 
+  const state = current?.state;
+  const options = useMemo(
+    () => (current && state ? optionsFor(state, content, current.human) : null),
+    [state, current?.human],
+  );
+
+  if (!current || !options) return <NewGame />;
+  if (current.state.phase === 'gameOver') return <EndScreen session={current} />;
+
+  if (current.state.phase === 'setup') {
+    return (
+      <main class="title-page">
+        {isHumanTurn.value ? (
+          <TraitChoice session={current} options={options} />
+        ) : (
+          <p class="hint center">{t('trait.waiting')}</p>
+        )}
+      </main>
+    );
+  }
+
+  const deciding = current.state.phase === 'upkeep' && isHumanTurn.value;
   return (
-    <main>
-      <h1>{title}</h1>
-      <p>{t('app.tagline')}</p>
-      <label>
-        {t('app.locale')}{' '}
-        <select
-          value={locale.value}
-          onChange={(event) => {
-            const next = LOCALES.find((l) => l === event.currentTarget.value);
-            if (next) locale.value = next;
-          }}
-        >
-          {LOCALES.map((l) => (
-            <option key={l} value={l}>
-              {l.toUpperCase()}
-            </option>
-          ))}
-        </select>
-      </label>
-    </main>
+    <>
+      {deciding && (
+        <div class="overlay">
+          <UpkeepPanel state={current.state} session={current} options={options} />
+        </div>
+      )}
+      <Board session={current} options={options} inert={deciding} />
+    </>
   );
 }
