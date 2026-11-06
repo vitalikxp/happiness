@@ -85,6 +85,8 @@ Layer boundaries and engine purity (rule 2, `docs/ARCHITECTURE.md §2`) are enfo
 - IDs are stable strings: `<pack>.<kind>.<slug>`, e.g. `fantasy.project.forge_a_blade`.
 - Discriminated unions for actions/effects/events; exhaustive `switch` with `never` check.
 - Tests colocated as `*.test.ts`. Content packs are validated by schema tests.
+- Engine tests use `src/engine/testing.ts` helpers and the `core-test` pack — don't rebalance that pack;
+  tests depend on its exact numbers. Add cards to it when a new mechanic needs coverage.
 - Commits: Conventional Commits (`feat(engine): …`, `content(fantasy): …`, `docs: …`).
 
 ## Definition of Done (any task)

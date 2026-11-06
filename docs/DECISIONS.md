@@ -52,3 +52,11 @@ is flavor only; double-sided Partner cards; meta-progression (records, life hist
 unlockable traits/goals). Rule answers: Q-07, Q-08, Q-09 (see GDD rule IDs in OPEN_QUESTIONS).
 **Consequences:** New `meta/` layer (M6); unlockables must not add power and must keep the engine
 deterministic (unlocked set is part of `GameSetup`); mobile layout moved to "Later".
+
+## ADR-011 — Engine core implementation choices (2026-11-06)
+**Decision:** (1) `applyAction` clones state (`structuredClone`) and mutates the draft internally —
+simple code, still pure from outside. (2) Effects DSL is a flat `Reward` object with a fixed application
+order instead of an effect list — easier to author and to budget-lint. (3) Content schemas use zod
+strict objects so typos in packs fail validation. (4) Inheritance is paid at the moment of death.
+(5) Card-driven board spaces report `notImplemented` until M2.
+**Consequences:** Effects needing ordering beyond the fixed one require a schema change (ADR).
