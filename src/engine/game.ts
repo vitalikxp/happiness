@@ -1,6 +1,7 @@
-import { BOARD_SPACES, ROWS, type ContentIndex, type RowId } from '../content/index.ts';
+import { ROWS, type ContentIndex, type RowId } from '../content/index.ts';
 import { resolve, validate } from './actions.ts';
 import { emptyPlacements } from './flow.ts';
+import { candidateActions } from './legal.ts';
 import { seedRng, shuffle } from './rng.ts';
 import { startPosition } from './tracks.ts';
 import {
@@ -53,6 +54,7 @@ export function createGame(setup: GameSetup, content: ContentIndex, seed: string
     childTrait: null,
     traitOffer: traitDeck.splice(0, rules.childTraitsDealt), // R-SET-06
     tableau: [],
+    archive: [],
   }));
   const first = players.find((p) => p.kind === 'human') ?? players[0];
   if (!first) throw new Error('A game needs players');
@@ -86,19 +88,9 @@ export function getLegalActions(
 ): Action[] {
   const self = state.players.find((p) => p.id === player);
   if (!self) return [];
-  const candidates: Action[] =
-    state.phase === 'setup'
-      ? self.traitOffer.map((card) => ({ type: 'chooseChildTrait', player, card }))
-      : [
-          ...BOARD_SPACES.map((space): Action => ({ type: 'placeTime', player, space })),
-          ...ROWS.map((row): Action => ({ type: 'refreshRow', player, row })),
-          ...self.tableau.map((c): Action => ({
-            type: 'discardCard',
-            player,
-            instanceId: c.instanceId,
-          })),
-        ];
-  return candidates.filter((action) => validate(state, content, action).length === 0);
+  return candidateActions(state, content, self).filter(
+    (action) => validate(state, content, action).length === 0,
+  );
 }
 
 /** Reasons the action is illegal (empty if legal) — for "can't because…" hints. */

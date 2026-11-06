@@ -3,7 +3,7 @@ import type { BoardSpaceId } from '../content/index.ts';
 import { loadPack } from '../content/index.ts';
 import { coreTestPack } from '../content/packs/core-test/index.ts';
 import { applyAction, createGame, getLegalActions } from './game.ts';
-import type { Action, GameSetup, GameState, PlayerId, PlayerState } from './types.ts';
+import type { Action, GameSetup, GameState, PlayerId, PlayerState, TableauCard } from './types.ts';
 
 export const content = loadPack(coreTestPack);
 export const rules = content.rules;
@@ -86,4 +86,13 @@ export function playToEnd(state: GameState, policy = calmAction, maxSteps = 5000
 
 export function legal(state: GameState): Action[] {
   return state.current === null ? [] : getLegalActions(state, content, state.current);
+}
+
+/** A tableau entry for arranging scenarios. */
+export function tableauCard(
+  instanceId: string,
+  cardId: string,
+  extra: Partial<Omit<TableauCard, 'instanceId' | 'cardId'>> = {},
+): TableauCard {
+  return { instanceId, cardId, level: 1, version: null, roles: null, round: 1, ...extra };
 }

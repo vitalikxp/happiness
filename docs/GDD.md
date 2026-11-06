@@ -106,6 +106,8 @@ trends, pets, community) — keep the architecture open for them (`OPEN_QUESTION
   (Basic Projects, Job and Partners occupy slots). +1 Stress for each Partner beyond the first.
 - **R-UPK-06** Pay upkeep for Items, Job, Partners in any order the player chooses; rewards from
   one may pay for another. Upkeep may include Time (markers are spent before the Action phase).
+  Digitally: players resolve upkeep one after another, clockwise from the first player, and each picks
+  one card at a time to pay or refuse. Cards bought this round first ask for upkeep next round.
 - **R-UPK-07** If an upkeep is unpaid (cannot or chooses not to): discard the card, +1 Stress, −1 STH.
 
 ### 5.2 Action phase
@@ -156,8 +158,8 @@ and levels/roles with `cost`, `reward`, optional `upkeep` and `requirement`.
 
 ### 7.1 Projects
 
-- **R-PRJ-01** Taking any Project when slots are full: +1 Stress immediately (Job and Partners count
-  as slots).
+- **R-PRJ-01** Taking a slot-occupying card (Basic Project, Job, Partner) when all slots are already
+  used: +1 Stress immediately. A new Job replacing the old one doesn't need an extra slot.
 - **Basic Project** (4 levels):
   - **R-PRJ-B-01** On take: pay L1 cost, gain L1 reward, mark L1.
   - **R-PRJ-B-02** Card action "advance": place the Time listed on the next level (≥1) on the card,
@@ -169,7 +171,8 @@ and levels/roles with `cost`, `reward`, optional `upkeep` and `requirement`.
   - **R-PRJ-G-01** On take: choose a role, move your Time from the action space onto it, pay role
     cost, gain role reward. (If you already had Time on Take Project, +1 Stress applies first.)
   - **R-PRJ-G-02** Any player may join an open Group Project via Take Project, taking a free role.
-    Max 2 roles per player per project.
+    Max `groupRolesPerPlayer` *(default 2)* roles per player per project. Joining also moves the
+    marker onto the card, so it doesn't occupy the Take Project space.
   - **R-PRJ-G-03** End of Round: for each role a player holds, they gain the bonus rewards listed
     for tiers 1..N where N = number of covered roles.
   - **R-PRJ-G-04** Group Projects do not occupy slots (like Single-Round Projects, they last one round).
@@ -186,8 +189,9 @@ and levels/roles with `cost`, `reward`, optional `upkeep` and `requirement`.
 - **R-JOB-02** Get Job: pay hiring cost, gain hiring reward. Max 1 Job: a new Job discards the old one (no penalty).
 - **R-JOB-03** Upkeep: Time + resources ⇒ money income. Unpaid ⇒ fired (R-UPK-07).
 - **R-JOB-04** Promotion (card action): only if the next-level Job of the same track is in the market.
-  Spend 1 Time (to Spent Time), pay promotion cost, gain promotion reward (includes LTH), take the new
-  Job, discard the old. The new Job's hiring reward is **not** gained.
+  Spend `promotionTime` *(default 1)* Time, pay promotion cost, gain promotion reward (includes LTH),
+  take the new Job (its market slot stays empty), discard the old. The new Job's hiring reward is
+  **not** gained. Card actions never add the repeat-space Stress.
 
 ### 7.4 Partners
 
@@ -206,8 +210,11 @@ and levels/roles with `cost`, `reward`, optional `upkeep` and `requirement`.
 
 ### 7.6 Life Goals
 
-- **R-LG-01** Evaluated at game end. Multiplayer: each goal awards LTH to the single best player;
-  ties ⇒ nobody. Solo: each has a threshold condition (R-SOLO-02).
+- **R-LG-01** Evaluated at game end. Multiplayer: each goal awards its LTH to the single best player;
+  ties or a best value of 0 ⇒ nobody. Solo: a goal is achieved when its threshold is met, and an
+  achieved goal also pays its LTH (R-SOLO-02).
+- Metrics: resources/money held at death; completed Projects (Basic L4, Single-Round, Group Projects
+  you started — everything set aside); Items owned; highest Partner level; Job level; rounds lived.
 
 ---
 
@@ -239,7 +246,7 @@ Zones left→right *(tunable, initial proposal — BALANCE.md)*:
 ## 9. Short-Term Happiness (STH)
 
 - **R-STH-01** Track from `−sthRange` to `+sthRange` *(default ±5)*; starts at 0 every round.
-- **R-STH-02** When advancing a Basic Project level, pay 1 fewer resource of your choice per positive
+- **R-STH-02** When advancing a Basic Project level (L2–L4; not when taking it), pay 1 fewer resource of your choice per positive
   STH point (doesn't consume STH; applies to every advance this round). Negative STH ⇒ pay 1 extra
   resource of your choice per point. Total cost per resource type cannot go below 0.
 - **R-STH-03** Overflow beyond the track ends converts to ±LTH.

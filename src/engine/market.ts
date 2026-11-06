@@ -11,7 +11,7 @@ export function rowSize(rules: RulesConfig, row: RowId, stage: Stage, playerCoun
 }
 
 /** Draw from the top; an empty deck is reshuffled from its discard pile first. */
-function draw(draft: GameState, row: RowId): CardId | null {
+export function draw(draft: GameState, row: RowId): CardId | null {
   const pile = draft.market[row];
   if (pile.deck.length === 0 && pile.discard.length > 0) {
     pile.deck = shuffle(draft.rng, pile.discard);

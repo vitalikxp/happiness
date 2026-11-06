@@ -60,3 +60,12 @@ order instead of an effect list — easier to author and to budget-lint. (3) Con
 strict objects so typos in packs fail validation. (4) Inheritance is paid at the moment of death.
 (5) Card-driven board spaces report `notImplemented` until M2.
 **Consequences:** Effects needing ordering beyond the fixed one require a schema change (ADR).
+
+## ADR-012 — Card mechanics implementation choices (2026-11-06)
+**Decision:** (1) Upkeep is resolved card by card (`payUpkeep` / `refuseUpkeep`), players in turn from
+the first player — small action lists for bots instead of enumerating payment orders. (2) Card choices
+ride on `placeTime` as `SpaceChoice`; tableau card actions are their own action types. (3) Cards that
+leave play for good go to a per-player `archive` (used by Life Goals); discarded/replaced cards return
+to their row's discard pile. (4) `previewAction` is computed from events, not state diffs, so it stays
+correct when an action ends the round and never leaks hidden cards. (5) Solo: achieved Life Goals also
+pay their LTH. **Consequences:** Every payment emits a `paid` event; the round end emits `roundEnding`.

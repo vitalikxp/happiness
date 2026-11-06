@@ -235,6 +235,16 @@ export const RulesConfigSchema = z.strictObject({
   rest: z.strictObject({ relax: positive }),
   refreshRow: z.strictObject({ sth: positive }),
   discardCard: z.strictObject({ stress: count, sth: count }),
+  /** R-UPK-07: penalty for an unpaid upkeep. */
+  upkeepFailure: z.strictObject({ stress: count, sth: count }),
+  /** R-UPK-05, R-PRJ-01: Stress per slot over the limit. */
+  slotOverloadStress: count,
+  /** R-UPK-05, R-REL-02: Stress per Partner beyond the first. */
+  extraPartnerStress: count,
+  /** R-JOB-04: Time spent on a promotion. */
+  promotionTime: positive,
+  /** R-PRJ-G-02: roles one player may hold in one Group Project. */
+  groupRolesPerPlayer: positive,
   childTraitsDealt: positive,
   solo: z.strictObject({ marketPlayers: positive, lifeGoals: positive, winLth: positive }),
 });

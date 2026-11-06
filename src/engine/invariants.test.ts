@@ -12,12 +12,15 @@ function actor(state: GameState): string | null {
   return state.pending?.player ?? state.current;
 }
 
-/** Actions that never add Stress: a board space not used yet this round, or Rest. */
+/** Actions that add no Stress by themselves: card actions, Rest, or a board space not used yet. */
 function calmOptions(state: GameState, legal: Action[]): Action[] {
   const calm = legal.filter(
     (a) =>
-      a.type === 'placeTime' &&
-      (a.space === 'rest' || !state.placements[a.space].includes(a.player)),
+      a.type === 'advanceProject' ||
+      a.type === 'promote' ||
+      a.type === 'payUpkeep' ||
+      (a.type === 'placeTime' &&
+        (a.space === 'rest' || !state.placements[a.space].includes(a.player))),
   );
   return calm.length > 0 ? calm : legal;
 }
@@ -25,22 +28,27 @@ function calmOptions(state: GameState, legal: Action[]): Action[] {
 /**
  * Play with choices from fast-check. With probability ~1/`risk` a choice picks any legal action
  * (repeats, refreshes, Overtime…), otherwise a calm one — so lives end both early (stress) and in
- * Old Age. Exhausted choices play calm.
+ * Old Age. Choices repeat cyclically; with no choices at all every move is the first calm one.
+ * Refreshes and discards don't end a turn, so after two in a row the policy must take a real turn.
  */
 function playRandomGame(players: number, seed: string, choices: number[], risk = 4) {
   const setup = setupFor(players);
   let state = createGame(setup, content, seed);
   const actions: Action[] = [];
   const states: GameState[] = [state];
+  let freeInARow = 0;
   for (let step = 0; state.phase !== 'gameOver'; step++) {
     if (step >= MAX_STEPS) throw new Error('game did not terminate');
     const player = actor(state);
     if (player === null) throw new Error(`nobody to act in phase ${state.phase}`);
-    const legal = getLegalActions(state, content, player);
-    if (legal.length === 0) throw new Error(`no legal action for ${player}`);
-    const choice = choices[step] ?? 1;
+    const all = getLegalActions(state, content, player);
+    if (all.length === 0) throw new Error(`no legal action for ${player}`);
+    const turnEnding = all.filter((a) => a.type !== 'refreshRow' && a.type !== 'discardCard');
+    const legal = freeInARow >= 2 && turnEnding.length > 0 ? turnEnding : all;
+    const choice = choices.length > 0 ? (choices[step % choices.length] ?? 1) : 1;
     const pool = choice % risk === 0 ? legal : calmOptions(state, legal);
     const action = pool[Math.floor(choice / risk) % pool.length] as Action;
+    freeInARow = action.type === 'refreshRow' || action.type === 'discardCard' ? freeInARow + 1 : 0;
     state = applyAction(state, content, action).state;
     actions.push(action);
     states.push(state);
@@ -67,12 +75,35 @@ function checkInvariants(state: GameState): void {
       if (p.id !== state.current) expect(getLegalActions(state, content, p.id)).toEqual([]);
     }
   }
-  // Cards are conserved per row: deck + discard + face-up = the whole deck, no duplicates.
+  // Cards are conserved: deck + discard + face-up + tableaus + archives = the whole deck, no duplicates.
+  const owned = state.players.flatMap((p) => [
+    ...p.tableau.map((c) => c.cardId),
+    ...p.archive.map((a) => a.cardId),
+  ]);
   for (const row of ROWS) {
     const { deck, discard, slots } = state.market[row];
-    const all = [...deck, ...discard, ...slots.filter((c) => c !== null)];
+    const inRow = new Set(content.decks[row]);
+    const all = [
+      ...deck,
+      ...discard,
+      ...slots.filter((c) => c !== null),
+      ...owned.filter((c) => inRow.has(c)),
+    ];
     expect(new Set(all).size).toBe(all.length);
     expect(all.length).toBe(content.decks[row].length);
+  }
+  for (const p of state.players) {
+    const jobs = p.tableau.filter((c) => content.cards.get(c.cardId)?.kind === 'job');
+    expect(jobs.length).toBeLessThanOrEqual(1);
+    for (const c of p.tableau) {
+      for (const holder of new Set(c.roles ?? [])) {
+        if (holder !== null) {
+          expect(c.roles?.filter((h) => h === holder).length).toBeLessThanOrEqual(
+            rules.groupRolesPerPlayer,
+          );
+        }
+      }
+    }
   }
 }
 
@@ -106,6 +137,42 @@ describe('engine invariants (property-based)', () => {
       { numRuns: 60, seed: 1 },
     );
     expect([...causes].sort()).toEqual(['oldAge', 'stress']);
+  });
+
+  it('random play exercises every card mechanic', () => {
+    const seen = new Set<string>();
+    fc.assert(
+      fc.property(gameArgs, ({ players, seed, choices, risk }) => {
+        const { state } = playRandomGame(players, seed, choices, risk);
+        for (const event of state.log) {
+          if (event.type === 'cardTaken') {
+            seen.add(`take:${content.cards.get(event.cardId)?.kind ?? ''}`);
+          } else if (event.type === 'levelReached') {
+            seen.add(`level:${String(event.level)}`);
+          } else {
+            seen.add(event.type);
+          }
+        }
+      }),
+      { numRuns: 80, seed: 2 },
+    );
+    const expected = [
+      'take:basicProject',
+      'take:singleRoundProject',
+      'take:groupProject',
+      'take:item',
+      'take:activity',
+      'take:job',
+      'take:partner',
+      'groupRoleTaken',
+      'level:4',
+      'promoted',
+      'upkeepPaid',
+      'upkeepRefused',
+      'cardArchived',
+      'lifeGoalScored',
+    ];
+    expect(expected.filter((e) => !seen.has(e))).toEqual([]);
   });
 
   it('determinism: replaying seed + actions reproduces the game; state survives JSON round-trip', () => {
