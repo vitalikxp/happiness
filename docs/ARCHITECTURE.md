@@ -40,67 +40,44 @@ Allowed imports: `ui → engine, ai, content` · `ai → engine` · `sim → eng
 
 ### 3.1 State
 
-Single plain-JSON `GameState`:
-
-```ts
-type GameState = {
-  version: 1;
-  config: RulesConfig;            // from pack rules + variant flags
-  rng: RngState;                  // seeded PRNG state (e.g. mulberry32/sfc32), advanced only by engine
-  round: number;                  // 1..maxRounds
-  phase: 'setup' | 'upkeep' | 'action' | 'endOfRound' | 'gameOver';
-  pending: PendingDecision | null; // e.g. choose child trait, choose upkeep order/payments
-  turn: { current: PlayerId; firstPlayer: PlayerId };
-  market: Record<RowId, { deck: CardId[]; discard: CardId[]; slots: (CardId | null)[] }>;
-  spaces: Record<ActionSpaceId, { occupants: PlayerId[]; locked: boolean }>;
-  players: PlayerState[];
-  lifeGoals: CardId[];
-  log: GameEvent[];               // append-only, drives UI log + biography
-};
-```
+Single plain-JSON `GameState` — **source of truth: `src/engine/types.ts`**. Key parts: `rng` (seeded
+PRNG state), `round`, `phase` (`setup` → `action` → `gameOver`; Upkeep and End of Round run
+automatically inside transitions), `pending` (decisions outside the turn order, e.g. Child Trait choice),
+`firstPlayer` / `current`, `market` (deck/discard/slots per row), `placements` (Time on board spaces),
+`players` (resources, time, stress position, sth, lth + `lthBySource`, death, tableau), `result`, `log`.
 
 Content (card definitions) is **not** in state — state references card IDs; the engine receives a
-read-only `ContentIndex`. This keeps saves small and lets content be patched between versions
-(saves pin `packId@version`).
+read-only `ContentIndex` (`loadPack()` in `src/content/validate.ts`). Saves pin `packId@packVersion`.
 
-### 3.2 Public API
+### 3.2 Public API (`src/engine/index.ts`)
 
 ```ts
 createGame(setup: GameSetup, content: ContentIndex, seed: string): GameState
 getLegalActions(state, content, playerId): Action[]          // the ONLY way to know what's allowed
-applyAction(state, content, action): { state: GameState; events: GameEvent[] }   // throws on illegal
+applyAction(state, content, action): { state: GameState; events: GameEvent[] }   // throws IllegalActionError
 explainIllegal(state, content, action): IllegalReason[]       // for "can't because…" UI hints
-previewAction(state, content, action): Preview                // deltas for UI previews / bots
 replay(setup, content, seed, actions: Action[]): GameState
+previewAction(state, content, action): Preview                // M2: deltas for UI previews / bots
 ```
 
-- Phases that need no input (refill, overload, old-age stress) are auto-advanced inside `applyAction`.
-- Player decisions inside phases (upkeep payments, child trait choice, group-project role) are modeled
-  as `PendingDecision` + dedicated `Action` variants — so bots and UI handle them uniformly.
+- Internally `applyAction` validates, `structuredClone`s the state and mutates the **draft**; inputs
+  are never mutated (property-tested).
+- Phases that need no input (refill, old-age stress, overload, end of round) run inside `applyAction`.
 - Undo = replay the log without the last action(s). Saves = `{ seed, setup, packVersion, actions }`.
 
-### 3.3 Actions, effects, events — discriminated unions
+### 3.3 Actions, events, effects DSL
+
+`Action` and `GameEvent` are discriminated unions in `types.ts`; every action names its `player`.
+Card effects are a flat, declarative `Reward` object (`src/content/schema.ts`):
 
 ```ts
-type Action =
-  | { type: 'placeTime'; space: BoardSpaceId; choice?: SpaceChoice }      // board action
-  | { type: 'cardAction'; cardInstance: string; kind: 'advance' | 'promote' }
-  | { type: 'refreshRow'; row: RowId }
-  | { type: 'discardCard'; cardInstance: string }
-  | { type: 'resolvePending'; decision: DecisionPayload };
-
-type Effect =                              // used by card data (DSL)
-  | { gain: Bundle }                       // knowledge/creativity/influence/money/time/sth/lth
-  | { stress: number }                     // +/- (minus respects zone rule)
-  | { relax: number } | { goodHealth: 1 }
-  | { custom: CustomEffectId; params?: Record<string, number | string> }; // escape hatch, registered in engine
-
-type Bundle = Partial<Record<'knowledge'|'creativity'|'influence'|'money'|'time'|'sth'|'lth', number>>;
-type Trigger = { on: 'action:study' | 'action:play' | /* … */ 'upkeep' ; effects: Effect[] }; // child traits etc.
+type Reward = { knowledge?, creativity?, influence?, money?, time?, sth?, lth?, goodHealth?: 1, relax?, stress? };
+// applied in a fixed order: resources → time → sth → lth → goodHealth → relax → stress
 ```
 
-Rules for the DSL: declarative; every `custom` effect must be implemented + tested in `engine/effects/custom/`
-and listed in the schema enum. Prefer extending the DSL over adding `custom` ids.
+Costs are resource bundles (+ `time` where Time markers are placed). Child Trait abilities are
+`triggers: [{ on: BoardSpaceId, reward }]`. Prefer extending `Reward` over special cases; if a card ever
+needs code, add a named effect to the schema and implement + test it in the engine.
 
 ### 3.4 Determinism & RNG
 

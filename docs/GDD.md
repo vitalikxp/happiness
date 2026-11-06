@@ -99,10 +99,9 @@ trends, pets, community) — keep the architecture open for them (`OPEN_QUESTION
   This can kill (R-STR-05).
 - **R-UPK-03** Refill market: discard all market cards, draw Projects and Items&Activities =
   `marketSize[players]` *(default 3 for 1–3 players, 4 for 4)*, Jobs and Partners = number of
-  players (solo counts as 2). No Jobs/Partners in Youth. Partners are drawn from the bottom
-  (if using double-sided cards — see CONTENT). Empty deck ⇒ reshuffle its discard.
-- **R-UPK-04** Time adjustment: player gets `startTime + zone.timeModifier` Time this round
-  (see §8), plus/minus pending modifiers (e.g. Good Health bonus).
+  players (solo counts as 2). No Jobs/Partners in Youth. Empty deck ⇒ reshuffle its discard.
+  (The original draws Partners from the bottom to hide the other side; irrelevant digitally.)
+- **R-UPK-04** Time adjustment: player gets `startTime + zone.timeModifier` Time this round (see §8).
 - **R-UPK-05** Overload: +1 Stress for each occupied slot beyond `slotLimit` *(default 3)*
   (Basic Projects, Job and Partners occupy slots). +1 Stress for each Partner beyond the first.
 - **R-UPK-06** Pay upkeep for Items, Job, Partners in any order the player chooses; rewards from
@@ -228,7 +227,8 @@ Zones left→right *(tunable, initial proposal — BALANCE.md)*:
 - **R-STR-02** Time per round = `startTime + timeModifier(zone)` (R-UPK-04).
 - **R-STR-03** Rest and Relax never move you into a zone to the left; they stop at the first space of the current zone.
 - **R-STR-04** Good Health: move one zone left keeping the relative position within the zone
-  (clamped to the zone's size); +1 Time next Upkeep.
+  (clamped to the zone's size). The better zone gives +1 Time from the next Upkeep (R-STR-02).
+  No effect in the leftmost zone.
 - **R-STR-05** Moving past the last space ⇒ the player **dies** immediately; they take no further
   actions this game. Their LTH is final except end-game scoring (inheritance, Life Goals).
 - **R-STR-06** Effects that would cause death through a *voluntary optional* action (Overtime) are illegal.
@@ -250,8 +250,8 @@ Zones left→right *(tunable, initial proposal — BALANCE.md)*:
 ## 10. Death & end of game
 
 - **R-DTH-01** A player dies by R-STR-05, or at the end of the last round (round 8) if still alive.
-- **R-DTH-02** Inheritance at death: +1 LTH per 5 of each basic resource and per 5 money
-  (computed per type, floor).
+- **R-DTH-02** Inheritance at death (paid immediately when the player dies): +1 LTH per 5 of each
+  basic resource and per 5 money (computed per type, floor).
 - **R-DTH-03** When all players are dead: score Life Goals (R-LG-01). Highest LTH wins. Tie-break: most
   resources + money held at death (sum of all types); still tied ⇒ shared victory.
 - **R-DTH-04** The end screen shows LTH breakdown by source and a **biography** built from the event

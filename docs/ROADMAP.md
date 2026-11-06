@@ -12,21 +12,24 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 
 **DoD:** `pnpm build` and `pnpm test` green in CI; empty page renders a localized title.
 
-## M1 — Engine core (with `core-test` pack)
-- [ ] Content schema (zod) for rules config and all card kinds; `core-test` pack (~10 cards per deck)
-- [ ] State, seeded RNG, `createGame`, setup (R-SET-*)
-- [ ] Round flow & phases (R-RND-*, R-UPK-*, R-END-*), basic board actions (R-A-*)
-- [ ] Stress track & death (R-STR-*), STH (R-STH-*)
-- [ ] Inheritance & end of game (R-DTH-*)
-- [ ] `getLegalActions`, `applyAction`, `explainIllegal`, `replay`; invariant property tests
+## M1 — Engine core (with `core-test` pack) ✅
+- [x] Content schema (zod) for rules config and all card kinds; `core-test` pack (~10 cards per deck)
+- [x] State, seeded RNG, `createGame`, setup (R-SET-01…07)
+- [x] Round flow & phases (R-RND-*, R-UPK-01…05, R-END-03…05), board actions without cards
+  (R-A-STUDY/PLAY/INTERACT/TEMP/OVERTIME/REST)
+- [x] Stress track & death (R-STR-*), STH (R-STH-*, incl. the R-STH-02 cost helper)
+- [x] Inheritance & end of game (R-DTH-01…03, without Life Goals)
+- [x] `getLegalActions`, `applyAction`, `explainIllegal`, `replay`; invariant property tests
 
 **DoD:** a scripted game plays from setup to `gameOver`; every rule ID above has a test.
 
 ## M2 — All card mechanics
+- [ ] Card board actions: Take Project, Spend, Get Job, Develop Relationship (R-A-PROJECT/SPEND/JOB/REL, R-A-01)
+- [ ] Upkeep payments & failures (R-UPK-06, R-UPK-07); End of Round for cards (R-END-01, R-END-02)
 - [ ] Basic / Single-Round / Group Projects (R-PRJ-*)
 - [ ] Items & Activities incl. upkeep (R-ITM-*)
 - [ ] Jobs & promotion (R-JOB-*); Partners (R-REL-*)
-- [ ] Child Traits with triggers (R-CHT-*); Life Goals & solo win (R-LG-*, R-SOLO-*)
+- [ ] Child Traits with triggers (R-CHT-*); Life Goals & solo win (R-LG-*, R-SOLO-02, R-SOLO-03)
 - [ ] Effects DSL complete; `previewAction`
 
 **DoD:** all GDD rule IDs implemented & tested; random-bot games always terminate (property test).
