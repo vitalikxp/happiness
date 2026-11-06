@@ -57,7 +57,7 @@ getLegalActions(state, content, playerId): Action[]          // the ONLY way to 
 applyAction(state, content, action): { state: GameState; events: GameEvent[] }   // throws IllegalActionError
 explainIllegal(state, content, action): IllegalReason[]       // for "can't because…" UI hints
 replay(setup, content, seed, actions: Action[]): GameState
-previewAction(state, content, action): Preview                // M2: deltas for UI previews / bots
+previewAction(state, content, action): Preview                // the action's own effect per player
 ```
 
 - Internally `applyAction` validates, `structuredClone`s the state and mutates the **draft**; inputs
@@ -68,6 +68,11 @@ previewAction(state, content, action): Preview                // M2: deltas for 
 ### 3.3 Actions, events, effects DSL
 
 `Action` and `GameEvent` are discriminated unions in `types.ts`; every action names its `player`.
+Card-driven board spaces take a `SpaceChoice` (which market card, level, role, partner version…);
+tableau card actions are separate (`advanceProject` with an STH allocation, `promote`). Upkeep is a
+phase of decisions: `pending.type === 'upkeep'` and `payUpkeep` / `refuseUpkeep` per card.
+`previewAction` folds the action's own events (until `roundEnding`) into per-player deltas and never
+reveals drawn cards.
 Card effects are a flat, declarative `Reward` object (`src/content/schema.ts`):
 
 ```ts

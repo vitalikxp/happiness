@@ -23,14 +23,14 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 
 **DoD:** a scripted game plays from setup to `gameOver`; every rule ID above has a test.
 
-## M2 — All card mechanics
-- [ ] Card board actions: Take Project, Spend, Get Job, Develop Relationship (R-A-PROJECT/SPEND/JOB/REL, R-A-01)
-- [ ] Upkeep payments & failures (R-UPK-06, R-UPK-07); End of Round for cards (R-END-01, R-END-02)
-- [ ] Basic / Single-Round / Group Projects (R-PRJ-*)
-- [ ] Items & Activities incl. upkeep (R-ITM-*)
-- [ ] Jobs & promotion (R-JOB-*); Partners (R-REL-*)
-- [ ] Child Traits with triggers (R-CHT-*); Life Goals & solo win (R-LG-*, R-SOLO-02, R-SOLO-03)
-- [ ] Effects DSL complete; `previewAction`
+## M2 — All card mechanics ✅
+- [x] Card board actions: Take Project, Spend, Get Job, Develop Relationship (R-A-PROJECT/SPEND/JOB/REL, R-A-01)
+- [x] Upkeep payments & failures (R-UPK-06, R-UPK-07); End of Round for cards (R-END-01, R-END-02)
+- [x] Basic / Single-Round / Group Projects (R-PRJ-*)
+- [x] Items & Activities incl. upkeep (R-ITM-*)
+- [x] Jobs & promotion (R-JOB-*); Partners (R-REL-*)
+- [x] Child Traits with triggers (R-CHT-*); Life Goals & solo win (R-LG-*, R-SOLO-02, R-SOLO-03)
+- [x] Effects DSL complete; `previewAction`
 
 **DoD:** all GDD rule IDs implemented & tested; random-bot games always terminate (property test).
 
