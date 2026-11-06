@@ -15,7 +15,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint . && prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "sim": "node src/sim/cli.ts",
+    "budget": "node src/sim/budget-cli.ts"
   },
   "dependencies": {
     "@preact/signals": "^2.11.4",
