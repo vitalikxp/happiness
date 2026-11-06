@@ -75,7 +75,11 @@ export type Reward = z.infer<typeof RewardSchema>;
 const UpkeepSchema = z.strictObject({ cost: CostSchema, reward: RewardSchema });
 const PricedSchema = z.strictObject({ cost: ResourceBundleSchema, reward: RewardSchema });
 
-const cardBase = { id: z.string() };
+const cardBase = {
+  id: z.string(),
+  /** Why the card intentionally sits outside its budget band (docs/BALANCE.md §3). */
+  balanceNote: z.string().optional(),
+};
 
 export const BasicProjectSchema = z.strictObject({
   ...cardBase,
@@ -253,6 +257,8 @@ export type RulesConfig = z.infer<typeof RulesConfigSchema>;
 export const PackSchema = z.strictObject({
   id: z.string().regex(/^[a-z][a-z0-9-]*$/),
   version: z.string().regex(/^\d+\.\d+\.\d+$/),
+  /** Set to false for test packs: the budget linter then reports but never fails. */
+  budgetLint: z.boolean().optional(),
   rules: RulesConfigSchema,
   cards: z.strictObject({
     projects: z.array(
