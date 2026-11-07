@@ -21,3 +21,18 @@ export const cardName = (id: string) => pt(`${id}.name`);
 export const levelName = (id: string, level: number) => pt(`${id}.l${String(level)}`);
 export const roleName = (id: string, role: number) => pt(`${id}.role${String(role + 1)}`);
 export const partnerName = (id: string, version: 0 | 1) => pt(`${id}.v${String(version)}.name`);
+
+/**
+ * Hash of the pack's rules and cards (texts excluded). A saved game or an archived life can only
+ * be replayed by the same content: same seed + log ⇒ same state holds per fingerprint.
+ */
+export const contentFingerprint: string = fnv1a(JSON.stringify({ ...fantasyPack, locales: null }));
+
+function fnv1a(text: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(36);
+}
