@@ -1,6 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import type { Card, Cost, Reward } from '../../content/index.ts';
 import type { PlayerId, TableauCard } from '../../engine/index.ts';
+import { artUrl } from '../art.ts';
 import { cardName, content, levelName, partnerName, pt, roleName } from '../content.ts';
 import { t } from '../i18n/index.ts';
 import type { Profile } from '../session.ts';
@@ -146,13 +147,16 @@ export function CardView({
       : card.kind === 'partner'
         ? cardName(card.id)
         : null;
+  const art = compact ? null : artUrl(card.id);
   const all = rows(card, entry);
   const lines = compact ? all.filter((row) => row.current) : all;
   const classes = ['card', `card-${card.kind}`];
   if (selected) classes.push('card-selected');
   if (compact) classes.push('card-compact');
+  if (art) classes.push('card-illustrated');
   return (
     <article class={classes.join(' ')} aria-label={name}>
+      {art && <img class="card-art" src={art} alt="" loading="lazy" decoding="async" />}
       <header class="card-head">
         <span class="card-kind">{t(`kind.${card.kind}`)}</span>
         {onSelect ? (
