@@ -123,6 +123,18 @@ export function removeFromTableau(player: PlayerState, instanceId: string): Tabl
 }
 
 /** Set a card aside for good (completed projects, finished activities). */
+/** Cards that last one round and are set aside at its end (R-END-02). */
+export const ONE_ROUND_KINDS: ReadonlySet<CardKind> = new Set([
+  'singleRoundProject',
+  'groupProject',
+  'activity',
+]);
+
+export function isOneRound(content: ContentIndex, card: CardId): boolean {
+  const kind = content.cards.get(card)?.kind;
+  return kind !== undefined && ONE_ROUND_KINDS.has(kind);
+}
+
 export function archive(draft: GameState, player: PlayerState, entry: TableauCard): void {
   removeFromTableau(player, entry.instanceId);
   player.archive.push({ cardId: entry.cardId, round: draft.round });

@@ -8,7 +8,7 @@ import {
   validateChoice,
   validatePromote,
 } from './cardActions.ts';
-import { cardOf, removeFromTableau, toDiscard } from './cards.ts';
+import { cardOf, isOneRound, removeFromTableau, toDiscard } from './cards.ts';
 import { applyReward, gainResources, gainTime } from './effects.ts';
 import { advanceTurn, beginActionPhase, beginRound } from './flow.ts';
 import { redrawRow, rowSize } from './market.ts';
@@ -69,10 +69,12 @@ export function validate(state: GameState, content: ContentIndex, action: Action
       return rowSize(rules, action.row, stage, state.players.length) > 0
         ? []
         : [{ code: 'rowUnavailable' }];
-    case 'discardCard':
-      return player.tableau.some((c) => c.instanceId === action.instanceId)
-        ? []
-        : [{ code: 'notInTableau' }];
+    case 'discardCard': {
+      // R-ACT-05: one-round cards have done their work and just wait for the End of Round.
+      const entry = player.tableau.find((c) => c.instanceId === action.instanceId);
+      if (!entry) return [{ code: 'notInTableau' }];
+      return isOneRound(content, entry.cardId) ? [{ code: 'notDiscardable' }] : [];
+    }
   }
 }
 

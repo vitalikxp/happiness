@@ -847,6 +847,27 @@ input[type='text']::placeholder {
   grid-template-columns: 1fr;
 }
 
+.tableau.played {
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: var(--s-2);
+}
+
+.card-compact {
+  gap: var(--s-1);
+  padding: var(--s-2) var(--s-3);
+  box-shadow: var(--frame);
+}
+
+.card-compact .card-title {
+  font-size: var(--step-0);
+}
+
+.card-compact .row-current {
+  background: none;
+  box-shadow: none;
+  padding-left: 0 !important;
+}
+
 /* Cards */
 
 .card {

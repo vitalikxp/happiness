@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { BOARD_SPACES, ROWS, RESOURCES, type BoardSpaceId } from '../../content/index.ts';
 import {
+  isOneRound,
   isSpaceOpen,
   stageOf,
   trackLength,
@@ -295,7 +296,9 @@ function Hero({ session, options }: { session: Session; options: Options }) {
     const kind = content.cards.get(c.cardId)?.kind;
     return kind === 'basicProject' || kind === 'job' || kind === 'partner';
   }).length;
-  const own = me.tableau.filter((c) => c.roles === null);
+  // Group Projects are shown with the market; one-round cards wait for the End of Round apart.
+  const own = me.tableau.filter((c) => c.roles === null && !isOneRound(content, c.cardId));
+  const played = me.tableau.filter((c) => c.roles === null && isOneRound(content, c.cardId));
   return (
     <section class="hero" aria-labelledby="hero-heading">
       <header class="hero-head">
@@ -339,6 +342,16 @@ function Hero({ session, options }: { session: Session; options: Options }) {
             </CardView>
           ))}
         </div>
+      )}
+      {played.length > 0 && (
+        <>
+          <h3 class="rubric small">{t('board.played')}</h3>
+          <div class="tableau played">
+            {played.map((entry) => (
+              <CardView key={entry.instanceId} cardId={entry.cardId} entry={entry} compact />
+            ))}
+          </div>
+        </>
       )}
     </section>
   );

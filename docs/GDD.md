@@ -119,6 +119,8 @@ trends, pets, community) — keep the architecture open for them (`OPEN_QUESTION
 - **R-ACT-03** A player with no Time is skipped.
 - **R-ACT-04** Before their action (not after), a player may refresh one market row for −1 STH, repeatable.
 - **R-ACT-05** During their turn a player may discard a card from their tableau: +1 Stress, −1 STH.
+  One-round cards (Single-Round and Group Projects, Activities) can't be discarded: their effect is
+  already applied and they are set aside at End of Round (R-END-02).
 
 ### 5.3 End of Round
 

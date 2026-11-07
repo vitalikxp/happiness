@@ -122,6 +122,7 @@ export function CardView({
   profiles = {},
   children,
   selected = false,
+  compact = false,
   onSelect,
 }: {
   cardId: string;
@@ -129,6 +130,8 @@ export function CardView({
   profiles?: Record<PlayerId, Profile>;
   children?: ComponentChildren;
   selected?: boolean;
+  /** Only the chosen level, without flavor text: a card that has already done its work. */
+  compact?: boolean;
   onSelect?: () => void;
 }) {
   const card = content.cards.get(cardId);
@@ -143,9 +146,13 @@ export function CardView({
       : card.kind === 'partner'
         ? cardName(card.id)
         : null;
-  const lines = rows(card, entry);
+  const all = rows(card, entry);
+  const lines = compact ? all.filter((row) => row.current) : all;
+  const classes = ['card', `card-${card.kind}`];
+  if (selected) classes.push('card-selected');
+  if (compact) classes.push('card-compact');
   return (
-    <article class={`card card-${card.kind}${selected ? ' card-selected' : ''}`} aria-label={name}>
+    <article class={classes.join(' ')} aria-label={name}>
       <header class="card-head">
         <span class="card-kind">{t(`kind.${card.kind}`)}</span>
         {onSelect ? (
@@ -190,7 +197,7 @@ export function CardView({
           ))}
         </p>
       )}
-      <p class="card-flavor">{pt(`${card.id}.flavor`)}</p>
+      {!compact && <p class="card-flavor">{pt(`${card.id}.flavor`)}</p>}
       {children}
     </article>
   );

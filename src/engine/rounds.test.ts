@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { countSlots } from './cards.ts';
+import { getLegalActions } from './game.ts';
 import { rowSize } from './market.ts';
 import { stageOf } from './state.ts';
 import {
@@ -176,6 +177,16 @@ describe('action phase', () => {
     expect(() => act(next, { type: 'discardCard', player: 'p0', instanceId: 'x' })).toThrow(
       /notInTableau/,
     );
+  });
+
+  it('R-ACT-05: one-round cards cannot be discarded and are not offered', () => {
+    const state = edit(startedGame(1), (d) => {
+      d.players[0]?.tableau.push(tableauCard('x', 'core-test.activity.feast'));
+    });
+    expect(() => act(state, { type: 'discardCard', player: 'p0', instanceId: 'x' })).toThrow(
+      /notDiscardable/,
+    );
+    expect(getLegalActions(state, content, 'p0').some((a) => a.type === 'discardCard')).toBe(false);
   });
 });
 

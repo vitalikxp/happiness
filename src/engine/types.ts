@@ -203,7 +203,8 @@ export type IllegalReason =
   | { code: 'invalidSthAllocation' }
   | { code: 'wouldDie' }
   | { code: 'rowUnavailable' }
-  | { code: 'notInTableau' };
+  | { code: 'notInTableau' }
+  | { code: 'notDiscardable' };
 
 export class IllegalActionError extends Error {
   readonly action: Action;
