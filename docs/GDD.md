@@ -281,8 +281,10 @@ Zones left→right *(tunable; Old Age Stress values and their reasoning: BALANCE
 ## 12. AI bots
 
 - **R-BOT-01** Bots use only the public engine API and only information visible to a human player.
-- **R-BOT-02** Difficulty levels v1: `random` (testing only), `greedy` (1-ply value model from
-  BALANCE.md), `planner` (multi-step lookahead / MCTS-lite, later).
+- **R-BOT-02** Difficulty levels v1: `random` (testing only), `novice` (easy: `greedy`, but a share
+  of its turns is a random legal action; upkeep and the Child Trait are always decided by `greedy`),
+  `greedy` (normal: 1-ply value model from BALANCE.md), `planner` (multi-step lookahead / MCTS-lite,
+  later).
 - **R-BOT-03** Bots choose deterministically given the game seed (own RNG stream).
 - **R-BOT-04** Bots have "personality" weights (scholar / artisan / courtier / family / hedonist)
   for variety and flavor in the biography.

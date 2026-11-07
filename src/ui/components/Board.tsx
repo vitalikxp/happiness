@@ -13,7 +13,17 @@ import {
 import { cardName, content, pt } from '../content.ts';
 import { t } from '../i18n/index.ts';
 import type { Options } from '../options.ts';
-import { fastBots, isHumanTurn, skipAhead, type Profile, type Session } from '../session.ts';
+import { go } from '../nav.ts';
+import {
+  canUndo,
+  isHumanTurn,
+  leaveGame,
+  skipAhead,
+  undo,
+  type Profile,
+  type Session,
+} from '../session.ts';
+import { settings, updateSettings } from '../settings.ts';
 import { chronicle } from '../story.ts';
 import { CardView } from './CardView.tsx';
 import { Chips, Icon } from './Icons.tsx';
@@ -69,11 +79,35 @@ function TurnStatus({ session }: { session: Session }) {
       <label class="toggle">
         <input
           type="checkbox"
-          checked={fastBots.value}
-          onChange={(e) => (fastBots.value = e.currentTarget.checked)}
+          checked={settings.value.fastBots}
+          onChange={(e) => {
+            updateSettings({ fastBots: e.currentTarget.checked });
+          }}
         />
         {t('board.speed')}
       </label>
+      <div class="turn-actions">
+        <button
+          type="button"
+          class="secondary small"
+          disabled={!canUndo.value}
+          title={t('board.undoHint')}
+          onClick={undo}
+        >
+          {t('board.undo')}
+        </button>
+        <button
+          type="button"
+          class="secondary small"
+          title={t('board.toTitleHint')}
+          onClick={() => {
+            leaveGame();
+            go({ kind: 'title' });
+          }}
+        >
+          {t('board.toTitle')}
+        </button>
+      </div>
       {me && !me.alive && (
         <>
           <p class="hint">
@@ -81,7 +115,7 @@ function TurnStatus({ session }: { session: Session }) {
               name: profiles[human]?.name ?? '',
             })}
           </p>
-          <button type="button" class="secondary" onClick={skipAhead}>
+          <button type="button" class="secondary fast-forward" onClick={skipAhead}>
             {t('board.fastForward')}
           </button>
         </>

@@ -61,8 +61,9 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 **DoD:** a person can play a full solo game and a game vs 3 bots without dev tools.
 
 ## M6 — Polish & release
-- [ ] Save/resume, undo within turn, settings (bot count/difficulty, variants)
-- [ ] Personal records & life history (R-META-01)
+- [x] Save/resume, undo within the round, settings (theme, bot speed; bot count/difficulty in the
+  new-game form). Rule variants (GDD §13) stay off until their flags exist in the engine.
+- [x] Personal records & life history (R-META-01)
 - [ ] Achievements & unlockable Child Traits (~4) / Life Goals (~3) (R-META-02, R-META-03)
 - [ ] Tutorial / first-game hints; accessibility pass
 - [ ] Art pass: style guide + AI-generated illustrations with CREDITS; sound (optional)

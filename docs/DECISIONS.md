@@ -98,3 +98,15 @@ options explain themselves. (3) Chronicle and biography are pure functions over 
 production build with the system Chrome (`channel: 'chrome'`), avoiding browser downloads in CI.
 **Consequences:** `cardTaken` carries the partner version; a `slotRefilled`-style event is needed for
 any future animation of refills (already present).
+
+## ADR-016 — Saves, undo, archive and difficulty (2026-11-07)
+**Decision:** (1) Saves and archived lives are game records (seed, setup, action log, profiles, bot
+names), replayed through the engine; a content fingerprint guards replays. (2) Undo takes back the
+human's last action **and the bots' replies to it**, any number of times, but never past the start of
+the current round: the seeded RNG lives in the state, so redoing the same move reveals the same cards
+(no rerolls), while a new round's upkeep and market are never taken back. Undos are counted in the
+record. (3) Difficulty = bot kind: `novice` (greedy with 20% random turns; ~44 LTH and 15% wins vs
+greedy's 71% in `greedy,novice,novice` sims) or `greedy`. (4) The archive keeps the latest 60 lives
+and forgets the oldest when storage is full.
+**Consequences:** changing any card or rule makes older saves unplayable (by design: they would
+diverge), but the archive's summaries survive.

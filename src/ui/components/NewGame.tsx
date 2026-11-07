@@ -1,8 +1,55 @@
-import { useState } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 import { content } from '../content.ts';
+import { history } from '../history.ts';
 import { t } from '../i18n/index.ts';
-import { CHARGES, TINCTURES, startGame, type Charge, type Tincture } from '../session.ts';
-import { Shield } from './Shield.tsx';
+import { go } from '../nav.ts';
+import {
+  CHARGES,
+  TINCTURES,
+  continueGame,
+  savedGame,
+  startGame,
+  type Charge,
+  type Session,
+  type Tincture,
+} from '../session.ts';
+import { DIFFICULTIES, settings, updateSettings } from '../settings.ts';
+import { SettingsPanel } from './SettingsPanel.tsx';
+import { ProfileShield, Shield } from './Shield.tsx';
+
+/** The unfinished life from the last visit, with a button to go on living it. */
+function ContinueLife({ saved }: { saved: Session }) {
+  const profile = saved.profiles[saved.human];
+  if (!profile) return null;
+  return (
+    <section class="folio continue" aria-labelledby="continue-heading">
+      <h2 id="continue-heading" class="rubric">
+        {t('continue.heading')}
+      </h2>
+      <div class="continue-body">
+        <ProfileShield profile={profile} size={48} />
+        <p>
+          <strong>{profile.name}</strong>
+          <br />
+          {t('continue.where', {
+            round: saved.state.round,
+            opponents: saved.state.players.length - 1,
+          })}
+        </p>
+        <button
+          type="button"
+          class="primary"
+          onClick={() => {
+            continueGame(saved);
+          }}
+        >
+          {t('continue.go')}
+        </button>
+      </div>
+      <p class="hint">{t('continue.hint')}</p>
+    </section>
+  );
+}
 
 const OPPONENTS = [0, 1, 2, 3] as const;
 /** Quick game: 1 human + 2 bots (R-SET-01). */
@@ -14,6 +61,8 @@ export function NewGame() {
   const [tincture, setTincture] = useState<Tincture>('azure');
   const [charge, setCharge] = useState<Charge>('star');
   const [opponents, setOpponents] = useState<number>(DEFAULT_OPPONENTS);
+  const saved = useMemo(savedGame, []);
+  const lives = history.value.length;
 
   const start = (event: Event) => {
     event.preventDefault();
@@ -32,6 +81,8 @@ export function NewGame() {
         <h1 class="title">{t('app.title')}</h1>
         <p class="title-tagline">{t('app.tagline')}</p>
       </header>
+
+      {saved && <ContinueLife saved={saved} />}
 
       <form class="folio new-game" onSubmit={start}>
         <h2 class="rubric">{t('newGame.heading')}</h2>
@@ -142,10 +193,45 @@ export function NewGame() {
           )}
         </fieldset>
 
+        {opponents > 0 && (
+          <fieldset class="field">
+            <legend>{t('newGame.difficulty')}</legend>
+            <div class="segmented">
+              {DIFFICULTIES.map((difficulty) => (
+                <label key={difficulty} class="segment">
+                  <input
+                    type="radio"
+                    name="difficulty"
+                    checked={settings.value.difficulty === difficulty}
+                    onChange={() => {
+                      updateSettings({ difficulty });
+                    }}
+                  />
+                  <span>{t(`newGame.difficulty.${difficulty}`)}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
+
         <button type="submit" class="primary">
           {t('newGame.start')}
         </button>
       </form>
+
+      <nav class="title-links" aria-label={t('nav.label')}>
+        <button
+          type="button"
+          class="secondary"
+          onClick={() => {
+            go({ kind: 'history' });
+          }}
+        >
+          {t('nav.history', { n: lives })}
+        </button>
+      </nav>
+
+      <SettingsPanel />
     </main>
   );
 }
