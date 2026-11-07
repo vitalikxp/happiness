@@ -37,6 +37,26 @@ export const generalRu: Record<string, string> = {
   'partnerLevel.3': 'Союз',
   'partnerLevel.4': 'Семья',
 
+  'zone.blessed': 'Благодать',
+  'zone.healthy': 'Здравие',
+  'zone.strained': 'Усталость',
+  'zone.ill': 'Хворь',
+  'zone.failing': 'Немощь',
+
+  // Names for computer-played characters.
+  'npc.f.1': 'Эльвира',
+  'npc.f.2': 'Гризельда',
+  'npc.f.3': 'Мелисента',
+  'npc.f.4': 'Иоланта',
+  'npc.f.5': 'Бригитта',
+  'npc.f.6': 'Аделаида',
+  'npc.m.1': 'Бартоломей',
+  'npc.m.2': 'Освальд',
+  'npc.m.3': 'Фредегар',
+  'npc.m.4': 'Леопольд',
+  'npc.m.5': 'Гвидо',
+  'npc.m.6': 'Ульрих',
+
   'track.science': 'Гильдия магов',
   'track.arts': 'Гильдия мастеров',
   'track.social': 'Торговая гильдия и двор',

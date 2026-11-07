@@ -5,7 +5,7 @@ import {
   type BoardSpaceId,
   type ContentIndex,
 } from '../content/index.ts';
-import { archive, cardOf, countSlots } from './cards.ts';
+import { archive, cardOf, countSlots, isOneRound } from './cards.ts';
 import { applyReward } from './effects.ts';
 import { scoreLifeGoals } from './lifeGoals.ts';
 import { redrawRow, rowSize } from './market.ts';
@@ -109,8 +109,6 @@ function payGroupBonuses(draft: GameState, content: ContentIndex): void {
   }
 }
 
-const ONE_ROUND_KINDS = new Set(['singleRoundProject', 'groupProject', 'activity']);
-
 /** End of Round (R-END-*), then the next round or the end of the game. */
 export function endRound(draft: GameState, content: ContentIndex): void {
   const { rules } = content;
@@ -119,7 +117,7 @@ export function endRound(draft: GameState, content: ContentIndex): void {
   // R-END-02
   for (const player of draft.players) {
     for (const entry of [...player.tableau]) {
-      if (ONE_ROUND_KINDS.has(content.cards.get(entry.cardId)?.kind ?? '')) {
+      if (isOneRound(content, entry.cardId)) {
         archive(draft, player, entry);
       }
     }

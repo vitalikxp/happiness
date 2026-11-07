@@ -14,7 +14,7 @@ import { advanceTurn, beginActionPhase, beginRound } from './flow.ts';
 import { redrawRow, rowSize } from './market.ts';
 import { emit, getPlayer, stageOf } from './state.ts';
 import { addStress, changeSth, relieveStress, stressHeadroom } from './tracks.ts';
-import { resolveUpkeep, validateUpkeep } from './upkeep.ts';
+import { isDiscardable, resolveUpkeep, validateUpkeep } from './upkeep.ts';
 import type { Action, GameState, IllegalReason, PlayerState } from './types.ts';
 
 /** R-SET-05, R-UPK-01: actions locked by life stage. */
@@ -69,10 +69,11 @@ export function validate(state: GameState, content: ContentIndex, action: Action
       return rowSize(rules, action.row, stage, state.players.length) > 0
         ? []
         : [{ code: 'rowUnavailable' }];
-    case 'discardCard':
-      return player.tableau.some((c) => c.instanceId === action.instanceId)
-        ? []
-        : [{ code: 'notInTableau' }];
+    case 'discardCard': {
+      const entry = player.tableau.find((c) => c.instanceId === action.instanceId);
+      if (!entry) return [{ code: 'notInTableau' }];
+      return isDiscardable(content, entry) ? [] : [{ code: 'notDiscardable' }];
+    }
   }
 }
 

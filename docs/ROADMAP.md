@@ -49,14 +49,14 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 
 **DoD:** linter clean (or justified), sim within targets.
 
-## M5 — Playable UI
-- [ ] New game screen: character creation (name, gender, portrait), quick game = 2 greedy bots
-- [ ] Board layout (desktop): market rows, action spaces, tracks, own tableau, opponents panel
-- [ ] «Книжная миниатюра» theme (CSS/SVG), card component (data-driven), icons, tooltips, previews,
+## M5 — Playable UI ✅
+- [x] New game screen: character creation (name, gender, portrait), quick game = 2 greedy bots
+- [x] Board layout (desktop): market rows, action spaces, tracks, own tableau, opponents panel
+- [x] «Книжная миниатюра» theme (CSS/SVG), card component (data-driven), icons, tooltips, previews,
   "can't because…" hints
-- [ ] Turn flow with bot animation; pending decisions (upkeep, roles, trait choice)
-- [ ] Log + end-of-life screen (score breakdown + biography generated from the pack's `bio.*` templates)
-- [ ] Playwright smoke: full solo game
+- [x] Turn flow with bot animation; pending decisions (upkeep, roles, trait choice)
+- [x] Log + end-of-life screen (score breakdown + biography generated from the pack's `bio.*` templates)
+- [x] Playwright smoke: full solo game and a game vs 3 bots
 
 **DoD:** a person can play a full solo game and a game vs 3 bots without dev tools.
 

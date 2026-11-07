@@ -74,6 +74,7 @@ pnpm typecheck        # tsc -b (app + node configs)
 pnpm sim --games 1000 --bots greedy,greedy:family,random --seed 1 [--pack core-test] [--json out.json]
                       # headless bot games in worker threads → balance report (BALANCE.md §4)
 pnpm budget [--pack core-test] [--all]   # card budget report vs value model (BALANCE.md §3)
+pnpm e2e              # Playwright: whole lives through the UI (needs Google Chrome installed)
 ```
 
 CLI tools in `src/sim/` run directly on Node's TypeScript support (no build step), so TS must stay

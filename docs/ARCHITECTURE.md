@@ -113,14 +113,29 @@ content/packs/fantasy/
 
 ## 5. UI
 
-- Preact reads `GameState` via a small store built on `@preact/signals` that wraps engine calls.
-- Components render from state + content + i18n; **no rule logic in components** — ask the engine
-  (`getLegalActions`, `explainIllegal`, `previewAction`).
-- Bots run in a Web Worker (later) with an artificial delay + animation for readability.
-- Card rendering: data-driven component (icons for resources, cost → reward layout reading left→right).
-- Desktop only (≥ 1280×720). Style «книжная миниатюра» built from CSS/SVG; illustrations optional by art id.
-- `GameSetup` carries the character profile (name, gender, portrait) and the unlocked content ids.
-- Accessibility: keyboard play, text alternatives for icons, color-blind-safe tracks.
+```
+src/ui/
+  session.ts    Signals store: engine state + action log, profiles (name, gender, heraldry) and the
+                bots' turn loop (setTimeout pauses; fast mode; skip-ahead after the human dies).
+  options.ts    Everything the human could do now, grouped by UI place (board space, market card,
+                tableau card, upkeep, omen) — legal ones with `previewAction` deltas, illegal ones
+                with `explainIllegal` reasons.
+  story.ts      Event log → chronicle lines and the end-of-life biography (pack `bio.*` templates).
+  content.ts    The played pack (`fantasy`) and `pt()` lookups of its texts.
+  components/   NewGame, Decisions (omen, upkeep), Board (rounds, spaces, market, hero, opponents,
+                goals, chronicle), CardView (any card from data), Icons, Shield, EndScreen.
+  styles/       One stylesheet of tokens + components («книжная миниатюра»; dark = candlelight).
+```
+
+- Components render from state + content + i18n; **no rule logic in components** — the engine
+  decides (`getLegalActions`, `getCandidateActions`, `explainIllegal`, `previewAction`).
+- Character profiles are UI-only flavor (R-SET-08); the engine never sees them.
+- Fonts are self-hosted via `@fontsource` (Ruslan Display initials, Cormorant Garamond headings,
+  Alegreya text) — no CDN at runtime.
+- Desktop first (≥ 1280×720); narrower windows stack the margins under the page instead of breaking.
+- Accessibility: native buttons/radios, one `h1` per screen, icon chips with screen-reader text,
+  shapes not only colors (icons, heraldic charges), visible focus, decision panels take focus and
+  make the board `inert`, `prefers-reduced-motion` honored.
 
 ## 6. Testing strategy
 
@@ -132,7 +147,7 @@ content/packs/fantasy/
 | Bots & sim | Bots pick legal moves, are deterministic, greedy ≫ random, personalities differ; sim metrics | `src/ai/*.test.ts`, `src/sim/*.test.ts`, `pnpm sim` |
 | Budget | Packs with `budgetLint` stay inside BALANCE §3 bands | `src/content/budget.test.ts`, `pnpm budget` |
 | Component | Key UI components | `@testing-library/preact` |
-| E2E | Start game, take actions, finish life | Playwright (M5+) |
+| E2E | Whole lives through the UI (solo and vs 3 bots) on the production build | `e2e/`, `pnpm e2e` (system Chrome) |
 
 ## 7. Bots & simulation
 

@@ -17,9 +17,13 @@
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
     "sim": "node src/sim/cli.ts",
-    "budget": "node src/sim/budget-cli.ts"
+    "budget": "node src/sim/budget-cli.ts",
+    "e2e": "playwright test"
   },
   "dependencies": {
+    "@fontsource/alegreya": "^5.3.0",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/ruslan-display": "^5.3.0",
     "@preact/signals": "^2.11.4",
     "preact": "^11.1.1",
     "zod": "^4.6.7"
@@ -27,6 +31,7 @@
   "devDependencies": {
     "@babel/core": "^7.29.13",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
     "@preact/preset-vite": "^2.10.6",
     "@testing-library/preact": "^3.2.6",
     "@types/node": "^24.19.2",

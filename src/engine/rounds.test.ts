@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { countSlots } from './cards.ts';
+import { getLegalActions } from './game.ts';
 import { rowSize } from './market.ts';
 import { stageOf } from './state.ts';
 import {
@@ -168,7 +169,7 @@ describe('action phase', () => {
 
   it('R-ACT-05: discarding an own card costs 1 Stress and 1 STH, without ending the turn', () => {
     const state = edit(startedGame(1), (d) => {
-      d.players[0]?.tableau.push(tableauCard('x', 'core-test.item.horse'));
+      d.players[0]?.tableau.push(tableauCard('x', 'core-test.item.horse', { level: 2 }));
     });
     const next = act(state, { type: 'discardCard', player: 'p0', instanceId: 'x' });
     expect(playerOf(next, 'p0')).toMatchObject({ tableau: [], stress: 4, sth: -1 });
@@ -176,6 +177,25 @@ describe('action phase', () => {
     expect(() => act(next, { type: 'discardCard', player: 'p0', instanceId: 'x' })).toThrow(
       /notInTableau/,
     );
+  });
+
+  it('R-ACT-05: only cards that occupy a slot or ask for upkeep can be discarded', () => {
+    const state = edit(startedGame(1), (d) => {
+      d.players[0]?.tableau.push(
+        tableauCard('feast', 'core-test.activity.feast'),
+        tableauCard('cart', 'core-test.item.horse', { level: 1 }),
+        tableauCard('coach', 'core-test.item.horse', { level: 2 }),
+      );
+    });
+    for (const instanceId of ['feast', 'cart']) {
+      expect(() => act(state, { type: 'discardCard', player: 'p0', instanceId })).toThrow(
+        /notDiscardable/,
+      );
+    }
+    const offered = getLegalActions(state, content, 'p0').flatMap((a) =>
+      a.type === 'discardCard' ? [a.instanceId] : [],
+    );
+    expect(offered).toEqual(['coach']);
   });
 });
 

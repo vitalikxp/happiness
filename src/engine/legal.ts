@@ -9,6 +9,7 @@ import {
 } from '../content/index.ts';
 import { marketChoices, needsChoice } from './cardActions.ts';
 import { cardOf } from './cards.ts';
+import { isDiscardable } from './upkeep.ts';
 import type { Action, GameState, PlayerState, SpaceChoice } from './types.ts';
 
 // Candidate actions for `getLegalActions`; the caller filters them through `validate`.
@@ -75,7 +76,9 @@ export function candidateActions(
       return [];
     }),
     ...ROWS.map((row): Action => ({ type: 'refreshRow', player, row })),
-    ...self.tableau.map((c): Action => ({ type: 'discardCard', player, instanceId: c.instanceId })),
+    ...self.tableau
+      .filter((c) => isDiscardable(content, c))
+      .map((c): Action => ({ type: 'discardCard', player, instanceId: c.instanceId })),
   ];
 }
 

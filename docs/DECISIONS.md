@@ -88,3 +88,13 @@ survival-aware — balance targets assume a player who plays for their goals and
 rates are judged on solo runs only. (5) Unlockable traits/goals move to M6 with meta-progression.
 **Consequences:** BALANCE.md §5–6 record the calibrated tunables and results; re-run the sim when
 content or the bot changes.
+
+## ADR-015 — Playable UI (2026-11-06)
+**Decision:** (1) One signals store (`session.ts`) holds engine state, the action log, UI-only profiles
+and runs bots with short pauses in the main thread (fast enough; a Web Worker is not needed yet).
+(2) The UI lists *candidate* actions with reasons (new public `getCandidateActions`) so unavailable
+options explain themselves. (3) Chronicle and biography are pure functions over the event log.
+(4) Fonts are self-hosted with `@fontsource`. (5) E2E tests play whole lives through the UI on the
+production build with the system Chrome (`channel: 'chrome'`), avoiding browser downloads in CI.
+**Consequences:** `cardTaken` carries the partner version; a `slotRefilled`-style event is needed for
+any future animation of refills (already present).

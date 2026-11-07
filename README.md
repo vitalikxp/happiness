@@ -6,5 +6,5 @@ happy as you can without being crushed by the burden of it all.
 
 Mechanically inspired by *The Pursuit of Happiness* (Artipia Games, 2015). All content is original.
 
-Status: **pre-production** — scaffold ready (M0), engine core next (M1). Start with [`AGENTS.md`](AGENTS.md) and
+Status: **playable prototype** — engine, bots, fantasy pack and UI (M0–M5). Run `pnpm dev`. Start with [`AGENTS.md`](AGENTS.md) and
 [`docs/ROADMAP.md`](docs/ROADMAP.md).
