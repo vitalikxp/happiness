@@ -8,7 +8,8 @@ import {
   type ResourceId,
 } from '../content/index.ts';
 import { marketChoices, needsChoice } from './cardActions.ts';
-import { cardOf, isOneRound } from './cards.ts';
+import { cardOf } from './cards.ts';
+import { isDiscardable } from './upkeep.ts';
 import type { Action, GameState, PlayerState, SpaceChoice } from './types.ts';
 
 // Candidate actions for `getLegalActions`; the caller filters them through `validate`.
@@ -76,7 +77,7 @@ export function candidateActions(
     }),
     ...ROWS.map((row): Action => ({ type: 'refreshRow', player, row })),
     ...self.tableau
-      .filter((c) => !isOneRound(content, c.cardId))
+      .filter((c) => isDiscardable(content, c))
       .map((c): Action => ({ type: 'discardCard', player, instanceId: c.instanceId })),
   ];
 }

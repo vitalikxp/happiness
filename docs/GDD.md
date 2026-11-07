@@ -118,9 +118,10 @@ trends, pets, community) — keep the architecture open for them (`OPEN_QUESTION
   Using several actions of the same card in a round does **not** add Stress.
 - **R-ACT-03** A player with no Time is skipped.
 - **R-ACT-04** Before their action (not after), a player may refresh one market row for −1 STH, repeatable.
-- **R-ACT-05** During their turn a player may discard a card from their tableau: +1 Stress, −1 STH.
-  One-round cards (Single-Round and Group Projects, Activities) can't be discarded: their effect is
-  already applied and they are set aside at End of Round (R-END-02).
+- **R-ACT-05** During their turn a player may discard a card that binds them — one occupying a slot
+  (Basic Project, Job, Partner) or asking for upkeep (an Item whose bought level has upkeep):
+  +1 Stress, −1 STH. Other cards can't be discarded: one-round cards are set aside at End of Round
+  anyway (R-END-02), and an Item without upkeep costs nothing to keep.
 
 ### 5.3 End of Round
 
@@ -182,6 +183,7 @@ and levels/roles with `cost`, `reward`, optional `upkeep` and `requirement`.
 ### 7.2 Items & Activities
 
 - **R-ITM-01** Spend: choose one level, pay its cost, gain its reward. No limit on how many you own.
+  An owned Item never changes level and occupies no slot.
 - **R-ITM-02** Item levels may have upkeep (cost + reward) paid every Upkeep (R-UPK-06).
 - **R-ITM-03** Activities are one-off; set aside at End of Round.
 

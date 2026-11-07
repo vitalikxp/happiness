@@ -8,6 +8,7 @@ import {
   zoneIndexAt,
   type GameState,
   type PlayerState,
+  type TableauCard,
 } from '../../engine/index.ts';
 import { cardName, content, pt } from '../content.ts';
 import { t } from '../i18n/index.ts';
@@ -296,8 +297,13 @@ function Hero({ session, options }: { session: Session; options: Options }) {
     const kind = content.cards.get(c.cardId)?.kind;
     return kind === 'basicProject' || kind === 'job' || kind === 'partner';
   }).length;
-  // Group Projects are shown with the market; one-round cards wait for the End of Round apart.
-  const own = me.tableau.filter((c) => c.roles === null && !isOneRound(content, c.cardId));
+  // Group Projects are shown with the market. Items never change level and one-round cards wait
+  // for the End of Round, so both are shown apart as compact cards.
+  const kindOf = (c: TableauCard) => content.cards.get(c.cardId)?.kind;
+  const own = me.tableau.filter(
+    (c) => c.roles === null && !isOneRound(content, c.cardId) && kindOf(c) !== 'item',
+  );
+  const items = me.tableau.filter((c) => kindOf(c) === 'item');
   const played = me.tableau.filter((c) => c.roles === null && isOneRound(content, c.cardId));
   return (
     <section class="hero" aria-labelledby="hero-heading">
@@ -328,7 +334,9 @@ function Hero({ session, options }: { session: Session; options: Options }) {
       <p class="hint">{t('board.slots', { used: slots, limit: content.rules.slotLimit })}</p>
       <h3 class="rubric small">{t('board.tableau')}</h3>
       {own.length === 0 ? (
-        <p class="hint">{t('board.tableauEmpty')}</p>
+        <p class="hint">
+          {t(items.length + played.length === 0 ? 'board.tableauEmpty' : 'board.noDeeds')}
+        </p>
       ) : (
         <div class="tableau">
           {own.map((entry) => (
@@ -342,6 +350,18 @@ function Hero({ session, options }: { session: Session; options: Options }) {
             </CardView>
           ))}
         </div>
+      )}
+      {items.length > 0 && (
+        <>
+          <h3 class="rubric small">{t('board.items')}</h3>
+          <div class="tableau played">
+            {items.map((entry) => (
+              <CardView key={entry.instanceId} cardId={entry.cardId} entry={entry} compact>
+                <OptionList state={state} options={options.tableau.get(entry.instanceId) ?? []} />
+              </CardView>
+            ))}
+          </div>
+        </>
       )}
       {played.length > 0 && (
         <>

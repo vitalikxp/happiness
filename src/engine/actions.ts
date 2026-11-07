@@ -8,13 +8,13 @@ import {
   validateChoice,
   validatePromote,
 } from './cardActions.ts';
-import { cardOf, isOneRound, removeFromTableau, toDiscard } from './cards.ts';
+import { cardOf, removeFromTableau, toDiscard } from './cards.ts';
 import { applyReward, gainResources, gainTime } from './effects.ts';
 import { advanceTurn, beginActionPhase, beginRound } from './flow.ts';
 import { redrawRow, rowSize } from './market.ts';
 import { emit, getPlayer, stageOf } from './state.ts';
 import { addStress, changeSth, relieveStress, stressHeadroom } from './tracks.ts';
-import { resolveUpkeep, validateUpkeep } from './upkeep.ts';
+import { isDiscardable, resolveUpkeep, validateUpkeep } from './upkeep.ts';
 import type { Action, GameState, IllegalReason, PlayerState } from './types.ts';
 
 /** R-SET-05, R-UPK-01: actions locked by life stage. */
@@ -70,10 +70,9 @@ export function validate(state: GameState, content: ContentIndex, action: Action
         ? []
         : [{ code: 'rowUnavailable' }];
     case 'discardCard': {
-      // R-ACT-05: one-round cards have done their work and just wait for the End of Round.
       const entry = player.tableau.find((c) => c.instanceId === action.instanceId);
       if (!entry) return [{ code: 'notInTableau' }];
-      return isOneRound(content, entry.cardId) ? [{ code: 'notDiscardable' }] : [];
+      return isDiscardable(content, entry) ? [] : [{ code: 'notDiscardable' }];
     }
   }
 }

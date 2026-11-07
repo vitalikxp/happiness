@@ -122,7 +122,6 @@ export function removeFromTableau(player: PlayerState, instanceId: string): Tabl
   return index < 0 ? null : (player.tableau.splice(index, 1)[0] ?? null);
 }
 
-/** Set a card aside for good (completed projects, finished activities). */
 /** Cards that last one round and are set aside at its end (R-END-02). */
 export const ONE_ROUND_KINDS: ReadonlySet<CardKind> = new Set([
   'singleRoundProject',
@@ -135,6 +134,7 @@ export function isOneRound(content: ContentIndex, card: CardId): boolean {
   return kind !== undefined && ONE_ROUND_KINDS.has(kind);
 }
 
+/** Set a card aside for good (completed projects, finished activities). */
 export function archive(draft: GameState, player: PlayerState, entry: TableauCard): void {
   removeFromTableau(player, entry.instanceId);
   player.archive.push({ cardId: entry.cardId, round: draft.round });
@@ -145,6 +145,13 @@ export function findInTableau(player: PlayerState, instanceId: string): TableauC
   return player.tableau.find((c) => c.instanceId === instanceId) ?? null;
 }
 
+const SLOT_KINDS: ReadonlySet<CardKind> = new Set(['basicProject', 'job', 'partner']);
+
+export function occupiesSlot(content: ContentIndex, card: CardId): boolean {
+  const kind = content.cards.get(card)?.kind;
+  return kind !== undefined && SLOT_KINDS.has(kind);
+}
+
 /** Slots used by Basic Projects, the Job and Partners (R-UPK-05, R-PRJ-01). */
 export function countSlots(
   content: ContentIndex,
@@ -153,9 +160,8 @@ export function countSlots(
   let slots = 0;
   let partners = 0;
   for (const entry of player.tableau) {
-    const kind = content.cards.get(entry.cardId)?.kind;
-    if (kind === 'basicProject' || kind === 'job' || kind === 'partner') slots++;
-    if (kind === 'partner') partners++;
+    if (occupiesSlot(content, entry.cardId)) slots++;
+    if (content.cards.get(entry.cardId)?.kind === 'partner') partners++;
   }
   return { slots, partners };
 }

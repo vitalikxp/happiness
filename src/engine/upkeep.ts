@@ -3,6 +3,7 @@ import {
   canAfford,
   findInTableau,
   lthSourceOf,
+  occupiesSlot,
   pay,
   removeFromTableau,
   toDiscard,
@@ -36,6 +37,14 @@ export function upkeepOf(content: ContentIndex, entry: TableauCard): Upkeep | nu
     default:
       return null;
   }
+}
+
+/**
+ * R-ACT-05: only cards that bind the player can be discarded during a turn — those that occupy
+ * a slot or ask for upkeep.
+ */
+export function isDiscardable(content: ContentIndex, entry: TableauCard): boolean {
+  return occupiesSlot(content, entry.cardId) || upkeepOf(content, entry) !== null;
 }
 
 const upkeepCards = (content: ContentIndex, player: PlayerState) =>

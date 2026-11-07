@@ -169,7 +169,7 @@ describe('action phase', () => {
 
   it('R-ACT-05: discarding an own card costs 1 Stress and 1 STH, without ending the turn', () => {
     const state = edit(startedGame(1), (d) => {
-      d.players[0]?.tableau.push(tableauCard('x', 'core-test.item.horse'));
+      d.players[0]?.tableau.push(tableauCard('x', 'core-test.item.horse', { level: 2 }));
     });
     const next = act(state, { type: 'discardCard', player: 'p0', instanceId: 'x' });
     expect(playerOf(next, 'p0')).toMatchObject({ tableau: [], stress: 4, sth: -1 });
@@ -179,14 +179,23 @@ describe('action phase', () => {
     );
   });
 
-  it('R-ACT-05: one-round cards cannot be discarded and are not offered', () => {
+  it('R-ACT-05: only cards that occupy a slot or ask for upkeep can be discarded', () => {
     const state = edit(startedGame(1), (d) => {
-      d.players[0]?.tableau.push(tableauCard('x', 'core-test.activity.feast'));
+      d.players[0]?.tableau.push(
+        tableauCard('feast', 'core-test.activity.feast'),
+        tableauCard('cart', 'core-test.item.horse', { level: 1 }),
+        tableauCard('coach', 'core-test.item.horse', { level: 2 }),
+      );
     });
-    expect(() => act(state, { type: 'discardCard', player: 'p0', instanceId: 'x' })).toThrow(
-      /notDiscardable/,
+    for (const instanceId of ['feast', 'cart']) {
+      expect(() => act(state, { type: 'discardCard', player: 'p0', instanceId })).toThrow(
+        /notDiscardable/,
+      );
+    }
+    const offered = getLegalActions(state, content, 'p0').flatMap((a) =>
+      a.type === 'discardCard' ? [a.instanceId] : [],
     );
-    expect(getLegalActions(state, content, 'p0').some((a) => a.type === 'discardCard')).toBe(false);
+    expect(offered).toEqual(['coach']);
   });
 });
 
