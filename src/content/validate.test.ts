@@ -19,9 +19,25 @@ describe('validatePack', () => {
 
   it('indexes every card and deck', () => {
     const content = loadPack(coreTestPack);
-    expect(content.cards.size).toBe(47);
-    expect(content.decks.childTraits).toHaveLength(8);
+    expect(content.cards.size).toBe(49);
+    expect(content.decks.childTraits).toHaveLength(9);
     expect(content.cards.get('core-test.job.arts_l2')?.kind).toBe('job');
+    expect([...content.locked]).toEqual(['core-test.trait.lucky', 'core-test.goal.collector']);
+  });
+
+  it('R-META-03: achievements unlock known traits/goals, once, and the base set stays enough', () => {
+    const unknown = clonePack();
+    at(unknown.achievements ?? [], 0).unlocks = ['core-test.trait.nobody'];
+    expect(validatePack(unknown)).toMatchObject({ ok: false });
+
+    const twice = clonePack();
+    at(twice.achievements ?? [], 1).unlocks = ['core-test.trait.lucky'];
+    expect(validatePack(twice)).toMatchObject({ ok: false });
+
+    const tooFew = clonePack();
+    at(tooFew.achievements ?? [], 2).unlocks = ['core-test.goal.sage'];
+    const result = validatePack(tooFew);
+    expect(result.ok ? [] : result.errors).toContainEqual(expect.stringMatching(/lifeGoals.*base/));
   });
 
   it('rejects unknown fields (typos in content)', () => {

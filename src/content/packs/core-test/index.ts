@@ -97,14 +97,31 @@ export const coreTestPack = {
       trait('dreamer', { creativity: 1, influence: 1 }, 'spend', { sth: 1 }),
       trait('ambitious', { influence: 1, money: 1 }, 'getJob', { influence: 1 }),
       trait('romantic', { creativity: 1, money: 1 }, 'developRelationship', { sth: 1 }),
+      // Locked until `core-test.achievement.survivor` (R-META-03).
+      trait('lucky', { money: 2 }, 'spend', { sth: 1 }),
     ],
     lifeGoals: [
       goal('hoarder', 'moneyAtDeath', 10),
       goal('sage', 'knowledgeAtDeath', 10),
       goal('builder', 'completedProjects', 2),
       goal('long_life', 'roundsLived', 7),
+      // Locked until `core-test.achievement.winner` (R-META-03).
+      goal('collector', 'itemsOwned', 2),
     ],
   },
+  achievements: [
+    {
+      id: 'core-test.achievement.survivor',
+      when: [{ kind: 'metric', metric: 'roundsLived', atLeast: 2 }],
+      unlocks: ['core-test.trait.lucky'],
+    },
+    {
+      id: 'core-test.achievement.winner',
+      when: [{ kind: 'win', minOpponents: 1 }],
+      unlocks: ['core-test.goal.collector'],
+    },
+    { id: 'core-test.achievement.rich', when: [{ kind: 'metric', metric: 'lth', atLeast: 1000 }] },
+  ],
 } satisfies PackInput;
 
 type Category = 'arcane' | 'craft' | 'martial' | 'court' | 'trade' | 'nature' | 'faith';
@@ -235,7 +252,7 @@ function trait(
 
 function goal(
   slug: string,
-  metric: 'moneyAtDeath' | 'knowledgeAtDeath' | 'completedProjects' | 'roundsLived',
+  metric: 'moneyAtDeath' | 'knowledgeAtDeath' | 'completedProjects' | 'roundsLived' | 'itemsOwned',
   soloAtLeast: number,
 ): CardInputOf<'lifeGoal'> {
   return {

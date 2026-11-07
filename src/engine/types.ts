@@ -14,6 +14,8 @@ export type Resources = Record<ResourceId, number>;
 export interface GameSetup {
   /** 1–4 seats in clockwise order (R-SET-01). */
   players: readonly { kind: 'human' | 'bot' }[];
+  /** Unlockable Child Traits / Life Goals that join the decks (R-META-03); default none. */
+  unlocked?: readonly CardId[];
 }
 
 /** Where Long-Term Happiness came from — drives the end-screen breakdown and balance reports. */

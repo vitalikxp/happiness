@@ -183,7 +183,11 @@ export const LIFE_GOAL_METRICS = [
   'partnerLevel',
   'jobLevel',
   'roundsLived',
+  'activitiesDone',
+  'basicProjectsCompleted',
+  'resourcesAtDeath',
 ] as const;
+export type LifeGoalMetric = (typeof LIFE_GOAL_METRICS)[number];
 
 export const LifeGoalSchema = z.strictObject({
   ...cardBase,
@@ -254,6 +258,30 @@ export const RulesConfigSchema = z.strictObject({
 });
 export type RulesConfig = z.infer<typeof RulesConfigSchema>;
 
+/** What a finished life must show for an achievement (R-META-02); all conditions must hold. */
+export const AchievementConditionSchema = z.discriminatedUnion('kind', [
+  /** A Life Goal metric of the player (or their final LTH) reaches `atLeast`. */
+  z.strictObject({
+    kind: z.literal('metric'),
+    metric: z.enum([...LIFE_GOAL_METRICS, 'lth']),
+    atLeast: count,
+  }),
+  /** The player won: solo victory (R-SOLO-02) or first place, against this many opponents. */
+  z.strictObject({
+    kind: z.literal('win'),
+    minOpponents: count.optional(),
+    maxOpponents: count.optional(),
+  }),
+]);
+
+export const AchievementSchema = z.strictObject({
+  /** `<pack>.achievement.<slug>` */
+  id: z.string(),
+  when: z.array(AchievementConditionSchema).min(1),
+  /** Child Traits / Life Goals that stay out of the game until this is earned (R-META-03). */
+  unlocks: z.array(z.string()).optional(),
+});
+
 export const PackSchema = z.strictObject({
   id: z.string().regex(/^[a-z][a-z0-9-]*$/),
   version: z.string().regex(/^\d+\.\d+\.\d+$/),
@@ -278,8 +306,11 @@ export const PackSchema = z.strictObject({
     childTraits: z.array(ChildTraitSchema),
     lifeGoals: z.array(LifeGoalSchema),
   }),
+  achievements: z.array(AchievementSchema).optional(),
 });
 export type Pack = z.infer<typeof PackSchema>;
+export type Achievement = z.infer<typeof AchievementSchema>;
+export type AchievementCondition = z.infer<typeof AchievementConditionSchema>;
 /** Pack source as authored (before validation); same shape as `Pack`. */
 export type PackInput = z.input<typeof PackSchema>;
 /** Card source as authored (before validation). */

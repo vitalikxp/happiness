@@ -11,6 +11,8 @@ export interface WorkerJob {
   seed: string;
   /** Game indices to play; game i uses seed `${seed}-${i}`. */
   indices: number[];
+  /** Play with every unlockable card in the decks (R-META-03). */
+  unlockAll?: boolean;
 }
 
 export function runJob(job: WorkerJob): GameRecord[] {
@@ -19,6 +21,10 @@ export function runJob(job: WorkerJob): GameRecord[] {
   const content = loadPack(input);
   const bots = job.bots.map(botByName);
   return job.indices.map((i) =>
-    recordGame(runGame(content, bots, `${job.seed}-${String(i)}`), job.bots, content),
+    recordGame(
+      runGame(content, bots, `${job.seed}-${String(i)}`, job.unlockAll),
+      job.bots,
+      content,
+    ),
   );
 }

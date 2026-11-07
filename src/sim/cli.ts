@@ -17,6 +17,7 @@ const { values } = parseArgs({
     pack: { type: 'string', default: 'core-test' },
     workers: { type: 'string', default: String(availableParallelism()) },
     json: { type: 'string' },
+    'unlock-all': { type: 'boolean', default: false },
   },
 });
 
@@ -41,6 +42,7 @@ const jobs = Array.from({ length: workers }, (_, w): WorkerJob => ({
   pack: values.pack,
   bots: names,
   seed: values.seed,
+  unlockAll: values['unlock-all'],
   indices: Array.from({ length: games }, (_, i) => i).filter((i) => i % workers === w),
 }));
 const parts = workers === 1 ? jobs.map(runJob) : await Promise.all(jobs.map(runInWorker));

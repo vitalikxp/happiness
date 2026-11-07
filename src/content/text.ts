@@ -61,6 +61,7 @@ export function missingTextKeys(pack: Pack): string[] {
   const required = [
     ...GENERIC_TEXT_KEYS,
     ...Object.values(pack.cards).flat().flatMap(cardTextKeys),
+    ...(pack.achievements ?? []).flatMap((a) => [`${a.id}.name`, `${a.id}.description`]),
   ];
   return required.filter((key) => !texts[key]?.trim());
 }

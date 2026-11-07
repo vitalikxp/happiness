@@ -370,6 +370,12 @@ function goalMetric(ctx: Ctx, metric: CardOf<'lifeGoal'>['metric']): number {
       );
     case 'roundsLived':
       return 0; // handled by Stress valuation
+    case 'activitiesDone':
+      return [...me.archive, ...me.tableau].filter((c) => kindOf(c.cardId) === 'activity').length;
+    case 'basicProjectsCompleted':
+      return me.archive.filter((a) => kindOf(a.cardId) === 'basicProject').length;
+    case 'resourcesAtDeath':
+      return me.resources.knowledge + me.resources.creativity + me.resources.influence;
   }
 }
 
@@ -432,6 +438,22 @@ function goalProgress(
     }
     case 'roundsLived':
       return 0;
+    case 'activitiesDone':
+      return action.type === 'placeTime' &&
+        action.choice?.kind === 'spend' &&
+        card(action.choice.card)?.kind === 'activity'
+        ? 1
+        : 0;
+    case 'basicProjectsCompleted': {
+      if (action.type !== 'advanceProject') return 0;
+      const entry = me.tableau.find((c) => c.instanceId === action.instanceId);
+      const c = entry ? card(entry.cardId) : undefined;
+      return c?.kind === 'basicProject' && (entry?.level ?? 0) + 1 === c.levels.length ? 1 : 0;
+    }
+    case 'resourcesAtDeath': {
+      const r = delta?.resources;
+      return (r?.knowledge ?? 0) + (r?.creativity ?? 0) + (r?.influence ?? 0);
+    }
   }
 }
 
