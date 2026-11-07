@@ -5,7 +5,8 @@ import { jobs } from './jobs.ts';
 import { partners } from './partners.ts';
 import { projects } from './projects.ts';
 import { generalRu } from './texts.ts';
-import { childTraits, lifeGoals } from './traitsGoals.ts';
+import { achievements, achievementsRu } from './achievements.ts';
+import { childTraits, lifeGoals, unlockableGoals, unlockableTraits } from './traitsGoals.ts';
 
 /** «Дорога к счастью»: an ordinary life in a classic fantasy kingdom (docs/CONTENT.md). */
 
@@ -16,14 +17,16 @@ const all: Authored[] = [
   ...jobs,
   ...partners,
   ...childTraits,
+  ...unlockableTraits,
   ...lifeGoals,
+  ...unlockableGoals,
 ];
 
 export const fantasyPack = {
   id: PACK,
   version: '0.1.0',
   defaultLocale: 'ru',
-  locales: { ru: { ...generalRu, ...toLocale(all) } },
+  locales: { ru: { ...generalRu, ...toLocale(all), ...achievementsRu } },
   rules: {
     maxRounds: 8,
     stages: { youth: [1, 1], adulthood: [2, 5], oldAge: [6, 8] },
@@ -59,7 +62,8 @@ export const fantasyPack = {
     itemsActivities: cards(itemsActivities),
     jobs: cards(jobs),
     partners: cards(partners),
-    childTraits: cards(childTraits),
-    lifeGoals: cards(lifeGoals),
+    childTraits: cards([...childTraits, ...unlockableTraits]),
+    lifeGoals: cards([...lifeGoals, ...unlockableGoals]),
   },
+  achievements,
 } satisfies PackInput;
