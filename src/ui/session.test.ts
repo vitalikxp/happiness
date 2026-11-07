@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { greedyBot } from '../ai/index.ts';
 import { replay } from '../engine/index.ts';
+import { earned } from './achievements.ts';
 import { content } from './content.ts';
 import { history, records } from './history.ts';
 import {
@@ -33,6 +34,7 @@ function step(): void {
 beforeEach(() => {
   localStorage.clear();
   history.value = [];
+  earned.value = {};
 });
 afterEach(leaveGame);
 
@@ -97,5 +99,16 @@ describe('archive', () => {
     expect(life?.biography[0]).toMatch(/^Агнесса/);
     expect(records(history.value)).toMatchObject({ lives: 1, bestSolo: life, bestVsBots: null });
     expect(JSON.parse(localStorage.getItem('happiness.history.v1') ?? '[]')).toHaveLength(1);
+    expect(earned.value['fantasy.achievement.first_chronicle']).toMatchObject({
+      life: 'whole-life',
+    });
+  });
+
+  it('R-META-03: earned achievements unlock their cards for the next lives', () => {
+    startGame(hero, 0, 'locked');
+    expect(current().setup.unlocked).toEqual([]);
+    earned.value = { 'fantasy.achievement.long_road': { at: '2026-01-01', life: 'x' } };
+    startGame(hero, 0, 'unlocked');
+    expect(current().setup.unlocked).toEqual(['fantasy.trait.iron_will']);
   });
 });

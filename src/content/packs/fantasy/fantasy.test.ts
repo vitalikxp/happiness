@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { budgetPack } from '../../budget.ts';
 import { cardTextKeys, GENERIC_TEXT_KEYS } from '../../text.ts';
-import { validatePack } from '../../validate.ts';
+import { lockedCards, validatePack } from '../../validate.ts';
 import { fantasyPack } from './index.ts';
 
 const result = validatePack(fantasyPack);
@@ -21,8 +21,15 @@ describe('fantasy pack', () => {
     expect([count('item'), count('activity')]).toEqual([24, 16]);
     expect(pack.cards.jobs).toHaveLength(18);
     expect(pack.cards.partners).toHaveLength(12);
-    expect(pack.cards.childTraits).toHaveLength(8);
-    expect(pack.cards.lifeGoals).toHaveLength(9);
+    const locked = lockedCards(pack);
+    const base = (list: readonly { id: string }[]) => list.filter((c) => !locked.has(c.id));
+    expect([base(pack.cards.childTraits).length, pack.cards.childTraits.length]).toEqual([8, 12]);
+    expect([base(pack.cards.lifeGoals).length, pack.cards.lifeGoals.length]).toEqual([9, 12]);
+  });
+
+  it('R-META-03: every unlockable card is unlocked by an achievement', () => {
+    expect(pack.achievements).toHaveLength(11);
+    expect(lockedCards(pack).size).toBe(7);
   });
 
   it('offers at least 8 Good Health projects', () => {

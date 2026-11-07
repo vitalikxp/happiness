@@ -8,6 +8,7 @@ export {
   replay,
 } from './game.ts';
 export { isSpaceOpen } from './actions.ts';
+export { earnedAchievements } from './achievements.ts';
 export { isOneRound } from './cards.ts';
 export { previewAction, type PlayerDelta, type Preview } from './preview.ts';
 export {

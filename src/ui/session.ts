@@ -12,6 +12,7 @@ import {
   type PlayerId,
 } from '../engine/index.ts';
 import { content, contentFingerprint, pt } from './content.ts';
+import { awardAchievements, unlockedCards } from './achievements.ts';
 import { archiveLife, toRecord } from './history.ts';
 import { settings } from './settings.ts';
 import { isRecord, readJson, remove, writeJson } from './storage.ts';
@@ -80,6 +81,7 @@ export function startGame(profile: Profile, opponents: number, seed = randomSeed
       { kind: 'human' },
       ...Array.from({ length: opponents }, () => ({ kind: 'bot' as const })),
     ],
+    unlocked: unlockedCards(),
   };
   const state = createGame(setup, content, seed);
   const difficulty = settings.value.difficulty;
@@ -174,6 +176,7 @@ function setSession(next: Session): void {
   session.value = next;
   if (next.state.phase === 'gameOver') {
     archiveLife(next);
+    awardAchievements(next.state, next.human, next.seed);
     remove(SAVE_KEY);
   } else {
     writeJson(SAVE_KEY, { fingerprint: contentFingerprint, game: toRecord(next) });

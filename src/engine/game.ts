@@ -1,4 +1,4 @@
-import { ROWS, type ContentIndex, type RowId } from '../content/index.ts';
+import { ROWS, type CardId, type ContentIndex, type RowId } from '../content/index.ts';
 import { resolve, validate } from './actions.ts';
 import { emptyPlacements } from './flow.ts';
 import { candidateActions } from './legal.ts';
@@ -33,9 +33,12 @@ export function createGame(setup: GameSetup, content: ContentIndex, seed: string
       { deck: shuffle(rng, decks[row]), discard: [], slots: [] },
     ]),
   ) as Record<RowId, MarketRow>;
-  const traitDeck = shuffle(rng, decks.childTraits);
+  // R-META-03: locked cards play only when the setup unlocks them.
+  const unlocked = new Set(setup.unlocked ?? []);
+  const inPlay = (id: CardId) => !content.locked.has(id) || unlocked.has(id);
+  const traitDeck = shuffle(rng, decks.childTraits.filter(inPlay));
   // R-SET-04, R-SOLO-01
-  const lifeGoals = shuffle(rng, decks.lifeGoals).slice(
+  const lifeGoals = shuffle(rng, decks.lifeGoals.filter(inPlay)).slice(
     0,
     count === 1 ? rules.solo.lifeGoals : count,
   );

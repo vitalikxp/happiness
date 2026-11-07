@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { App } from './App.tsx';
 import { ru } from './i18n/locales/ru.ts';
+import { seenHints } from './hints.ts';
 import { go } from './nav.ts';
 import { leaveGame, session } from './session.ts';
 
@@ -10,6 +11,7 @@ afterEach(() => {
   leaveGame();
   go({ kind: 'title' });
   localStorage.clear();
+  seenHints.value = {};
 });
 
 describe('App', () => {
@@ -43,6 +45,19 @@ describe('App', () => {
     fireEvent.click(first);
     expect(screen.getByRole('heading', { name: ru['board.market'] })).toBeTruthy();
     expect(screen.getByText(ru['board.turnYou'])).toBeTruthy();
+  });
+
+  it('shows a first-game hint once', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('radio', { name: ru['newGame.opponents.0'] }));
+    fireEvent.click(screen.getByRole('button', { name: ru['newGame.start'] }));
+    const [first] = screen.getAllByRole('button', { name: new RegExp(ru['trait.choose']) });
+    if (!first) throw new Error('no omen button');
+    fireEvent.click(first);
+    expect(screen.getByText(ru['hint.welcome'])).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: ru['hint.ok'] }));
+    expect(screen.queryByText(ru['hint.welcome'])).toBeNull();
+    expect(screen.queryByRole('heading', { name: ru['hint.heading'] })).toBeNull();
   });
 
   it('offers to continue an unfinished life after leaving to the title page', () => {

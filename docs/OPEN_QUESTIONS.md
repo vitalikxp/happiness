@@ -5,9 +5,10 @@ the owner. When resolved: record the answer, update GDD/DECISIONS, move the entr
 
 ## Open
 
-- **Q-13 Achievement list & unlocks.** Which achievements exist and which Child Traits / Life Goals each
-  unlocks. Needed before M6.
-- **Q-14 Art style guide.** Palette, references, prompt template for AI illustrations. Needed before the M6 art pass.
+- **Q-13 Achievement list & unlocks.** Proposed in `CONTENT.md §4.1` (11 achievements, 4 traits +
+  3 goals unlocked) — awaiting the owner's approval in the M6b review.
+- **Q-14 Art style guide.** Owner: the agent writes the style guide, prompt template and per-card
+  prompts; the owner generates images. Due with M6c (deploy: GitHub Pages).
 
 ## Resolved (2026-11-06, see ADR-010)
 

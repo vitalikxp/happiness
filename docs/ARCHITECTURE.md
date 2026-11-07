@@ -105,6 +105,10 @@ content/packs/fantasy/
   art/               // optional; cards reference art ids, UI has a fallback renderer
 ```
 
+- `achievements` (optional): conditions over a finished game + Child Traits / Life Goals they
+  unlock. Unlockable cards stay in the pack's decks but `ContentIndex.locked` keeps them out of a
+  game unless `GameSetup.unlocked` lists them (R-META-03); the engine's `earnedAchievements` checks
+  the conditions (R-META-02). Base decks alone must meet the deck minimums.
 - Card text uses keys: `fantasy.project.forge_a_blade.name`, `.l1.name`, `.flavor`, `.bio.l4`.
 - **Validation (CI)**: zod schema; unique IDs; every i18n key present in default locale; deck
   composition matches targets in `CONTENT.md`; **budget linter** checks each level against the value
@@ -119,6 +123,8 @@ src/ui/
                 bots' turn loop (setTimeout pauses; fast mode; skip-ahead after the human dies).
                 Autosaves every move, restores by replay, undoes within the round.
   history.ts    Finished lives (R-META-01): game record + summary + biography text; records.
+  achievements.ts  Earned achievements; unlocked cards go into every new game's setup.
+  hints.ts      First-game margin notes: situation predicates, each shown once.
   settings.ts   Theme (`data-theme` on <html>), bot speed, opponents' difficulty.
   storage.ts    Guarded localStorage JSON (`happiness.*` keys); the game works without storage.
   nav.ts        Pages outside a game: title, archive, one archived life.

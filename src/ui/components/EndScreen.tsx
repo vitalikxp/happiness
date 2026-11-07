@@ -1,4 +1,5 @@
-import type { LthSource } from '../../engine/index.ts';
+import { earnedAchievements, type LthSource } from '../../engine/index.ts';
+import { earned } from '../achievements.ts';
 import { cardName, content } from '../content.ts';
 import { t } from '../i18n/index.ts';
 import { history, records } from '../history.ts';
@@ -6,6 +7,7 @@ import { go } from '../nav.ts';
 import { leaveGame, type Session } from '../session.ts';
 import { biography } from '../story.ts';
 import { Chronicle } from './Board.tsx';
+import { AchievementList } from './Achievements.tsx';
 import { ProfileShield } from './Shield.tsx';
 
 const SOURCES: LthSource[] = [
@@ -127,6 +129,8 @@ export function EndScreen({ session, archived = false }: { session: Session; arc
             </table>
           </section>
 
+          <LifeAchievements session={session} archived={archived} />
+
           <section class="folio" aria-labelledby="goals-end-heading">
             <h2 id="goals-end-heading" class="rubric">
               {t('end.goals')}
@@ -181,4 +185,19 @@ function NewRecord({ session }: { session: Session }) {
   const best = records(earlier)[solo ? 'bestSolo' : 'bestVsBots'];
   if (!me || earlier.length === 0 || (best && best.lth >= me.lth)) return null;
   return <p class="new-record">{t('end.newRecord', { lth: me.lth })}</p>;
+}
+
+/** Achievements this life earned; those earned for the first time by it are marked new. */
+function LifeAchievements({ session, archived }: { session: Session; archived: boolean }) {
+  const ids = earnedAchievements(session.state, content, session.human);
+  if (ids.length === 0) return null;
+  const fresh = archived ? [] : ids.filter((id) => earned.value[id]?.life === session.seed);
+  return (
+    <section class="folio" aria-labelledby="achievements-end-heading">
+      <h2 id="achievements-end-heading" class="rubric">
+        {t('end.achievements')}
+      </h2>
+      <AchievementList ids={ids} fresh={fresh} />
+    </section>
+  );
 }

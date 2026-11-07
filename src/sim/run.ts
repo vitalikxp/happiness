@@ -5,8 +5,15 @@ import { applyAction, createGame, type GameState } from '../engine/index.ts';
 const MAX_STEPS = 10_000;
 
 /** Play one bot-only game to the end. Seat i is played by `bots[i]`. */
-export function runGame(content: ContentIndex, bots: readonly Bot[], seed: string): GameState {
-  let state = createGame({ players: bots.map(() => ({ kind: 'bot' as const })) }, content, seed);
+export function runGame(
+  content: ContentIndex,
+  bots: readonly Bot[],
+  seed: string,
+  unlockAll = false,
+): GameState {
+  const players = bots.map(() => ({ kind: 'bot' as const }));
+  const setup = unlockAll ? { players, unlocked: [...content.locked] } : { players };
+  let state = createGame(setup, content, seed);
   for (let step = 0; state.phase !== 'gameOver'; step++) {
     if (step >= MAX_STEPS)
       throw new Error(`Game ${seed} did not finish in ${String(MAX_STEPS)} steps`);

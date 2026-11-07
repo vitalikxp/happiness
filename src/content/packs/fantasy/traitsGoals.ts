@@ -1,7 +1,9 @@
+import type { LifeGoalMetric } from '../../schema.ts';
 import { bundle, id, type Authored } from './define.ts';
 
-// 8 base Child Traits (start resources worth ~4 R + an ability) and 9 base Life Goals.
-// Unlockable traits/goals arrive with meta-progression (M6, R-META-03).
+// 8 base Child Traits (start resources worth ~4 R + an ability) and 9 base Life Goals, plus
+// 4 traits and 3 goals unlocked by achievements (R-META-03, `achievements.ts`): same budget, more
+// variety.
 
 export const childTraits: Authored<'childTrait'>[] = [
   {
@@ -102,16 +104,59 @@ export const childTraits: Authored<'childTrait'>[] = [
   },
 ];
 
-type Metric =
-  | 'knowledgeAtDeath'
-  | 'creativityAtDeath'
-  | 'influenceAtDeath'
-  | 'moneyAtDeath'
-  | 'completedProjects'
-  | 'itemsOwned'
-  | 'partnerLevel'
-  | 'jobLevel'
-  | 'roundsLived';
+/** Unlockable Child Traits (R-META-03). */
+export const unlockableTraits: Authored<'childTrait'>[] = [
+  {
+    card: {
+      id: id('trait', 'lucky_moon'),
+      kind: 'childTrait',
+      start: bundle(['knowledge', 1], ['creativity', 1], ['influence', 1], ['money', 1]),
+      triggers: [{ on: 'takeProject', reward: { sth: 1 } }],
+    },
+    ru: {
+      name: 'Под счастливой луной',
+      flavor: 'Удача любит начинающих. Каждое новое начинание приносит +1 Радость.',
+    },
+  },
+  {
+    card: {
+      id: id('trait', 'wanderer_blood'),
+      kind: 'childTrait',
+      start: bundle(['money', 2], ['influence', 1], ['creativity', 1]),
+      triggers: [{ on: 'getJob', reward: { influence: 1, sth: 1 } }],
+    },
+    ru: {
+      name: 'Кровь странника',
+      flavor: 'Новое место — новая жизнь. Поступая на службу, получаете +1 Славу и +1 Радость.',
+    },
+  },
+  {
+    card: {
+      id: id('trait', 'hearth_keeper'),
+      kind: 'childTrait',
+      start: bundle(['money', 2], ['creativity', 2]),
+      triggers: [{ on: 'developRelationship', reward: { relax: 1 } }],
+    },
+    ru: {
+      name: 'Хранитель очага',
+      flavor: 'Дом — ваша крепость. Сердечные дела снимают немного Бремени.',
+    },
+  },
+  {
+    card: {
+      id: id('trait', 'iron_will'),
+      kind: 'childTrait',
+      start: bundle(['knowledge', 2], ['influence', 2]),
+      triggers: [{ on: 'overtime', reward: bundle(['knowledge', 1]) }],
+    },
+    ru: {
+      name: 'Железная воля',
+      flavor: 'Усталость вас не берёт. Бессонные ночи приносят +1 Мудрость.',
+    },
+  },
+];
+
+type Metric = LifeGoalMetric;
 
 function goal(
   slug: string,
@@ -205,5 +250,33 @@ export const lifeGoals: Authored<'lifeGoal'>[] = [
     8,
     'Долгожитель',
     'Прожить дольше всех. Соло: дожить до последнего раунда.',
+  ),
+];
+
+/** Unlockable Life Goals (R-META-03). */
+export const unlockableGoals: Authored<'lifeGoal'>[] = [
+  goal(
+    'joy_of_life',
+    'activitiesDone',
+    5,
+    6,
+    'Жизнь в удовольствие',
+    'Больше всех досуга за жизнь. Соло: не меньше 6.',
+  ),
+  goal(
+    'master_builder',
+    'basicProjectsCompleted',
+    5,
+    2,
+    'Мастер-строитель',
+    'Больше всех начинаний, доведённых до последнего шага. Соло: не меньше 2.',
+  ),
+  goal(
+    'treasury_of_talents',
+    'resourcesAtDeath',
+    5,
+    15,
+    'Кладезь талантов',
+    'Больше всех Мудрости, Мастерства и Славы вместе к концу жизни. Соло: не меньше 15.',
   ),
 ];

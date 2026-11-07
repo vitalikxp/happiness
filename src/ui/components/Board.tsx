@@ -11,8 +11,9 @@ import {
   type TableauCard,
 } from '../../engine/index.ts';
 import { cardName, content, pt } from '../content.ts';
-import { t } from '../i18n/index.ts';
+import { t, type MessageKey } from '../i18n/index.ts';
 import type { Options } from '../options.ts';
+import { currentHint, dismissHint } from '../hints.ts';
 import { go } from '../nav.ts';
 import {
   canUndo,
@@ -357,10 +358,11 @@ function Hero({ session, options }: { session: Session; options: Options }) {
       </header>
       <div class="hero-stats">
         <Chips bundle={Object.fromEntries(RESOURCES.map((r) => [r, me.resources[r]]))} empty="0" />
-        <p class="candles" aria-label={`${t('board.time')}: ${String(me.time)}`}>
+        <p class="candles">
           {Array.from({ length: me.time }, (_, i) => (
             <Icon key={i} term="time" size={20} />
           ))}
+          <span class="sr-only">{`${t('board.time')}: ${String(me.time)}`}</span>
         </p>
       </div>
       <StressTrack player={me} />
@@ -525,6 +527,49 @@ export function Chronicle({ session }: { session: Session }) {
   );
 }
 
+/** A first-game note in the margin; one at a time, each shown once (`hints.ts`). */
+function HintNote({ session }: { session: Session }) {
+  if (!settings.value.hints || !isHumanTurn.value || session.state.phase !== 'action') return null;
+  const id = currentHint(session);
+  if (!id) return null;
+  const solo = session.state.players.length === 1;
+  return (
+    <aside class="hint-note" aria-labelledby="hint-heading">
+      <h2 id="hint-heading" class="hint-note-heading">
+        {t('hint.heading')}
+      </h2>
+      <p>
+        {t(`hint.${id}` as MessageKey, {
+          lth: content.rules.solo.winLth,
+          goals: t(solo ? 'hint.goals.solo' : 'hint.goals.multi', {
+            lth: content.rules.solo.winLth,
+          }),
+        })}
+      </p>
+      <div class="hint-note-actions">
+        <button
+          type="button"
+          class="secondary small"
+          onClick={() => {
+            dismissHint(id);
+          }}
+        >
+          {t('hint.ok')}
+        </button>
+        <button
+          type="button"
+          class="link"
+          onClick={() => {
+            updateSettings({ hints: false });
+          }}
+        >
+          {t('hint.off')}
+        </button>
+      </div>
+    </aside>
+  );
+}
+
 export function Board({
   session,
   options,
@@ -547,6 +592,7 @@ export function Board({
         <LifeGoals state={session.state} />
       </aside>
       <main class="page">
+        <HintNote session={session} />
         <Market session={session} options={options} />
       </main>
       <aside class="margin margin-right">

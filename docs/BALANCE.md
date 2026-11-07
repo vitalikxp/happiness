@@ -112,6 +112,11 @@ Everything else is as in `core-test` (start Time 6, 3 slots, STH ±5, stress zon
 | First seat win rate | — | 35% (≈ 33% fair) | 26% | ≤ 30% (4p) |
 | Best archetype win rate | — | — | 26% | ≤ 60% |
 
+With every unlockable card in the decks (`pnpm sim --pack fantasy --bots greedy --unlock-all`, 1000
+solo games): avg LTH 58.0, solo win rate 27.9%, death round 7, 6–7% reach the end; «Жизнь в
+удовольствие» needed solo ≥ 6 (at 4 it was met in 95% of games). Two projects then sit at a 41% pick
+rate (just above the band) — acceptable, they are base cards competing with stronger goal pulls.
+
 Notes:
 - Pick rates are judged on solo runs only: with 3–4 players almost every visible card gets taken.
 - Results depend on the bot. Greedy knows the revealed Life Goals, values Good Health as an extra

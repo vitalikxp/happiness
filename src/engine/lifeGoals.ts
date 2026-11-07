@@ -1,4 +1,4 @@
-import type { CardOf, ContentIndex } from '../content/index.ts';
+import type { CardOf, ContentIndex, LifeGoalMetric } from '../content/index.ts';
 import { cardOf } from './cards.ts';
 import { emit } from './state.ts';
 import { changeLth } from './tracks.ts';
@@ -8,16 +8,27 @@ import type { GameResult, GameState, PlayerState } from './types.ts';
 
 const PROJECT_KINDS = new Set(['basicProject', 'singleRoundProject', 'groupProject']);
 
-/** The measured value of a Life Goal metric for a dead player. */
+/** The measured value of a Life Goal for a dead player. */
 export function measure(
   content: ContentIndex,
   goal: CardOf<'lifeGoal'>,
   player: PlayerState,
 ): number {
+  return measureMetric(content, goal.metric, player);
+}
+
+/** A Life Goal metric of a player (also used by achievements, R-META-02). */
+export function measureMetric(
+  content: ContentIndex,
+  metric: LifeGoalMetric,
+  player: PlayerState,
+): number {
+  const archived = (kind: string) =>
+    player.archive.filter((a) => content.cards.get(a.cardId)?.kind === kind).length;
   const kinds = player.tableau.map((c) => ({ entry: c, kind: content.cards.get(c.cardId)?.kind }));
   const maxLevel = (kind: string) =>
     Math.max(0, ...kinds.filter((k) => k.kind === kind).map((k) => k.entry.level ?? 0));
-  switch (goal.metric) {
+  switch (metric) {
     case 'knowledgeAtDeath':
       return player.resources.knowledge;
     case 'creativityAtDeath':
@@ -41,6 +52,12 @@ export function measure(
       );
     case 'roundsLived':
       return player.death?.round ?? 0;
+    case 'activitiesDone':
+      return archived('activity');
+    case 'basicProjectsCompleted':
+      return archived('basicProject');
+    case 'resourcesAtDeath':
+      return player.resources.knowledge + player.resources.creativity + player.resources.influence;
   }
 }
 
