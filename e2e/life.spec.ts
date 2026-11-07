@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
 /**
@@ -80,6 +81,10 @@ async function playLife(page: Page, opponents: string) {
 test('a whole solo life, then it is in the archive', async ({ page }) => {
   await playLife(page, 'Одна жизнь (соло)');
   await expect(page.getByText(/Победа|Жизнь прожита/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Достижения этой жизни' })).toBeVisible();
+  await page.waitForTimeout(1200);
+  const axe = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
+  expect(axe.violations.map((v) => `${v.id}: ${v.nodes[0]?.target.join(' ') ?? ''}`)).toEqual([]);
   await page.getByRole('button', { name: 'Новая жизнь' }).click();
   await page.getByRole('button', { name: 'Архив жизней (1)' }).click();
   await expect(page.locator('.life')).toHaveCount(1);

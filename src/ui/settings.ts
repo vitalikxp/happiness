@@ -14,10 +14,12 @@ export interface Settings {
   difficulty: Difficulty;
   /** Bots move quickly instead of pausing so the human can follow them. */
   fastBots: boolean;
+  /** First-game margin notes (`hints.ts`). */
+  hints: boolean;
 }
 
 const KEY = 'settings.v1';
-const DEFAULTS: Settings = { theme: 'auto', difficulty: 'greedy', fastBots: false };
+const DEFAULTS: Settings = { theme: 'auto', difficulty: 'greedy', fastBots: false, hints: true };
 
 function load(): Settings {
   const saved = readJson(KEY);
@@ -28,6 +30,7 @@ function load(): Settings {
     theme: pick(THEMES, saved.theme, DEFAULTS.theme),
     difficulty: pick(DIFFICULTIES, saved.difficulty, DEFAULTS.difficulty),
     fastBots: typeof saved.fastBots === 'boolean' ? saved.fastBots : DEFAULTS.fastBots,
+    hints: typeof saved.hints === 'boolean' ? saved.hints : DEFAULTS.hints,
   };
 }
 

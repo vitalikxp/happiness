@@ -615,6 +615,152 @@ input[type='text']::placeholder {
   color: var(--gold);
 }
 
+/* ——— First-game hints: a note pinned in the margin ——— */
+
+.hint-note {
+  position: relative;
+  margin-bottom: var(--s-5);
+  padding: var(--s-3) var(--s-4) var(--s-3) var(--s-6);
+  border-left: 3px solid var(--lapis);
+  background: color-mix(in srgb, var(--lapis) 8%, var(--vellum));
+  box-shadow: var(--lift);
+  animation: ink-in 500ms ease-out both;
+}
+
+.hint-note::before {
+  content: '☞';
+  position: absolute;
+  left: var(--s-2);
+  top: var(--s-3);
+  color: var(--lapis);
+  font-size: var(--step-1);
+  line-height: 1;
+}
+
+.hint-note-heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-0);
+  font-weight: 700;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  color: var(--lapis);
+}
+
+.hint-note p {
+  margin: var(--s-1) 0 var(--s-2);
+  max-width: 60ch;
+}
+
+.hint-note-actions,
+.settings-hints {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.settings-hints {
+  margin-top: var(--s-3);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  font-size: var(--step--1);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ——— Achievements ——— */
+
+.achievements {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: var(--s-3) var(--s-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.achievement {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: var(--s-2);
+  align-items: start;
+  color: var(--ink-soft);
+}
+
+.achievement p {
+  margin: 0;
+}
+
+.achievement-seal {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px dashed var(--ink-faint);
+  border-radius: 50%;
+  font-size: var(--step-1);
+}
+
+.achievement-earned {
+  color: var(--ink);
+}
+
+.achievement-earned .achievement-seal {
+  border: 2px solid var(--gold-leaf);
+  background: color-mix(in srgb, var(--gold-leaf) 18%, transparent);
+  color: var(--gold);
+}
+
+.achievement-fresh .achievement-seal {
+  animation: seal-in 900ms ease-out both;
+}
+
+@keyframes seal-in {
+  from {
+    transform: scale(0.4) rotate(-30deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.achievement-name {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.achievement-new {
+  margin-left: var(--s-2);
+  padding: 0 var(--s-2);
+  border-radius: var(--radius);
+  background: var(--cinnabar);
+  color: var(--vellum);
+  font-family: var(--font-body);
+  font-size: var(--step--1);
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+.achievement-description,
+.achievement-unlocks {
+  font-size: var(--step--1);
+}
+
+.achievement-unlocks {
+  font-style: italic;
+  color: var(--verdigris);
+}
+
 .new-record {
   margin: var(--s-3) 0 0;
   font-family: var(--font-display);

@@ -3,6 +3,9 @@ import { canReplay, history, records, type LifeRecord } from '../history.ts';
 import { t } from '../i18n/index.ts';
 import { go } from '../nav.ts';
 import { restore } from '../session.ts';
+import { earned } from '../achievements.ts';
+import { content } from '../content.ts';
+import { AchievementList } from './Achievements.tsx';
 import { EndScreen } from './EndScreen.tsx';
 import { ProfileShield } from './Shield.tsx';
 
@@ -80,6 +83,16 @@ export function HistoryPage() {
           <Record label={t('history.bestSolo')} life={summary.bestSolo} />
           <Record label={t('history.bestVsBots')} life={summary.bestVsBots} />
         </dl>
+      </section>
+
+      <section class="folio" aria-labelledby="achievements-heading">
+        <h2 id="achievements-heading" class="rubric">
+          {t('achievements.heading', {
+            got: content.achievements.filter((a) => earned.value[a.id]).length,
+            total: content.achievements.length,
+          })}
+        </h2>
+        <AchievementList />
       </section>
 
       <section class="folio" aria-labelledby="lives-heading">

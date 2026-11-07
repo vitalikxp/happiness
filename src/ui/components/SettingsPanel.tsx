@@ -1,3 +1,4 @@
+import { resetHints, seenHints } from '../hints.ts';
 import { t } from '../i18n/index.ts';
 import { settings, THEMES, updateSettings } from '../settings.ts';
 
@@ -36,6 +37,30 @@ export function SettingsPanel() {
         />
         {t('board.speed')}
       </label>
+      <div class="settings-hints">
+        <label class="toggle">
+          <input
+            type="checkbox"
+            checked={current.hints}
+            onChange={(e) => {
+              updateSettings({ hints: e.currentTarget.checked });
+            }}
+          />
+          {t('settings.hints')}
+        </label>
+        {Object.keys(seenHints.value).length > 0 && (
+          <button
+            type="button"
+            class="secondary small"
+            onClick={() => {
+              resetHints();
+              updateSettings({ hints: true });
+            }}
+          >
+            {t('settings.hintsAgain')}
+          </button>
+        )}
+      </div>
     </section>
   );
 }
