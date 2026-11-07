@@ -1178,6 +1178,18 @@ input[type='text']::placeholder {
   animation-delay: 180ms;
 }
 
+.card-art {
+  display: block;
+  width: calc(100% + 2 * var(--s-4));
+  max-width: none;
+  margin: calc(-1 * var(--s-4)) calc(-1 * var(--s-4)) 0;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 2px solid var(--gold-leaf);
+  background: var(--parchment-deep);
+}
+
 .card-empty {
   min-height: 8rem;
   background: transparent;

@@ -18,6 +18,7 @@
     "format": "prettier --write .",
     "sim": "node src/sim/cli.ts",
     "budget": "node src/sim/budget-cli.ts",
+    "art": "node src/sim/art-cli.ts",
     "e2e": "playwright test"
   },
   "dependencies": {

@@ -24,7 +24,8 @@ src/
       core-test/   Tiny pack for engine tests (stable, never rebalanced casually).
       fantasy/     First real pack: cards/*.ts|json, rules.json, locales/{ru,en}.json, art/
   ai/         Bots: random, greedy (+ personalities). Depend on the engine public API and content data.
-  sim/        Node CLIs: `pnpm sim` (bot games in worker threads → report) and `pnpm budget`.
+  sim/        Node CLIs: `pnpm sim` (bot games in worker threads → report), `pnpm budget` and
+              `pnpm art` (illustration prompts → art/PROMPTS.md).
               Depends on engine, ai, content; the only layer allowed to use Node APIs.
   ui/         Preact app: components, hooks, i18n, animation. Depends on engine API, content, ai.
   meta/       Achievements & unlock rules: pure functions over finished games (added in M6).
@@ -102,8 +103,11 @@ content/packs/fantasy/
   cards/items.ts, jobs.ts, partners.ts, childTraits.ts, lifeGoals.ts
   locales/ru.json    // all texts by key: card names, level names, flavor, biography templates
   locales/en.json
-  art/               // optional; cards reference art ids, UI has a fallback renderer
+  art.ts             // illustration subjects + style template (not pack data, see art/STYLE.md)
 ```
+
+Pictures live outside `src/`, in `art/cards/<card id>.webp`; `src/ui/art.ts` bundles whatever is
+there through `import.meta.glob`, and a card without a picture keeps its text-only look.
 
 - `achievements` (optional): conditions over a finished game + Child Traits / Life Goals they
   unlock. Unlockable cards stay in the pack's decks but `ContentIndex.locked` keeps them out of a
@@ -133,6 +137,7 @@ src/ui/
                 with `explainIllegal` reasons.
   story.ts      Event log → chronicle lines and the end-of-life biography (pack `bio.*` templates).
   content.ts    The played pack (`fantasy`) and `pt()` lookups of its texts.
+  art.ts        Card pictures found in art/cards/ by card id (optional, see art/STYLE.md).
   components/   NewGame (+ continue), Decisions (omen, upkeep), Board (rounds, spaces, market, hero,
                 opponents, goals, chronicle), CardView (any card from data), Icons, Shield,
                 EndScreen, History (records, archive, past life), SettingsPanel.

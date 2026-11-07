@@ -5,10 +5,14 @@ the owner. When resolved: record the answer, update GDD/DECISIONS, move the entr
 
 ## Open
 
-- **Q-13 Achievement list & unlocks.** Proposed in `CONTENT.md §4.1` (11 achievements, 4 traits +
-  3 goals unlocked) — awaiting the owner's approval in the M6b review.
-- **Q-14 Art style guide.** Owner: the agent writes the style guide, prompt template and per-card
-  prompts; the owner generates images. Due with M6c (deploy: GitHub Pages).
+_(none)_
+
+## Resolved (2026-11-07, see ADR-017, ADR-018)
+
+- **Q-13 Achievement list & unlocks** → the list in `CONTENT.md §4.1` (11 achievements, 4 traits +
+  3 goals unlocked), accepted with the M6b merge.
+- **Q-14 Art style guide** → `art/STYLE.md` + generated `art/PROMPTS.md`; the owner generates and
+  curates the pictures, credited in `art/CREDITS.md`. The game ships without them until then.
 
 ## Resolved (2026-11-06, see ADR-010)
 

@@ -122,3 +122,15 @@ by axe-core (WCAG 2.2 AA tags) in e2e on every screen, in both themes.
 **Consequences:** new Life Goal metrics (`activitiesDone`, `basicProjectsCompleted`,
 `resourcesAtDeath`) are known to the greedy bot. Achievements are not awarded retroactively for
 lives finished before M6b.
+
+## ADR-018 — Card art pipeline and hosting (2026-11-07)
+**Decision:** (1) Pictures are optional files `art/cards/<card id>.webp` (640×480, ≤ 120 KB),
+bundled by Vite's `import.meta.glob`; a card without one keeps the text-only look, so art can arrive
+card by card without code changes. (2) Prompts = one shared style template + a short English subject
+per card, kept as code next to the pack (`fantasy/art.ts`, a test demands a subject for every card)
+and rendered to `art/PROMPTS.md` by `pnpm art`; every picture gets a row in `art/CREDITS.md`.
+Subjects keep people small and partners drawn through their things, so one picture fits both
+partner versions and any hero. (3) Hosting: GitHub Pages from a workflow on every push to `main`;
+the relative Vite `base` serves the build from `/happiness/`.
+**Consequences:** v1 ships without illustrations; sound stays out of v1. Saves live in the
+browser's storage for `vitalik.dev` (the owner's Pages domain), under `happiness.*` keys.

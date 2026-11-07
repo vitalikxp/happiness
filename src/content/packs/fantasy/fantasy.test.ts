@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { budgetPack } from '../../budget.ts';
 import { cardTextKeys, GENERIC_TEXT_KEYS } from '../../text.ts';
 import { lockedCards, validatePack } from '../../validate.ts';
+import { artSubjects } from './art.ts';
 import { fantasyPack } from './index.ts';
 
 const result = validatePack(fantasyPack);
@@ -52,6 +53,10 @@ describe('fantasy pack', () => {
     });
     expect(stray).toEqual([]);
     expect([...required].filter((key) => !ru[key])).toEqual([]);
+  });
+
+  it('has one illustration subject per card (art/STYLE.md)', () => {
+    expect(Object.keys(artSubjects).sort()).toEqual(cards.map((c) => c.id).sort());
   });
 
   it('biography templates only use known placeholders and come in both genders', () => {
