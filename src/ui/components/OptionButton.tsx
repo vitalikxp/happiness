@@ -1,3 +1,4 @@
+import { useState } from 'preact/hooks';
 import type { Action, GameState, PlayerDelta } from '../../engine/index.ts';
 import { cardName, content, levelName, partnerName, pt, roleName } from '../content.ts';
 import { t } from '../i18n/index.ts';
@@ -96,7 +97,6 @@ export function OptionButton({
   label?: string;
 }) {
   const text = label ?? optionLabel(state, option.action);
-  const allocation = option.action.type === 'advanceProject' ? option.action.sthAllocation : null;
   const reason = option.reasons[0];
   return (
     <div class={`option${option.legal ? '' : ' option-disabled'}`}>
@@ -109,11 +109,6 @@ export function OptionButton({
         }}
       >
         <span class="option-label">{text}</span>
-        {allocation && Object.keys(allocation).length > 0 && (
-          <span class="option-allocation">
-            {pt('term.sth')}: <Chips bundle={allocation} />
-          </span>
-        )}
         {option.delta && <DeltaChips delta={option.delta} />}
       </button>
       {!option.legal && reason && (
@@ -121,6 +116,52 @@ export function OptionButton({
           {t('option.unavailable', { reason: t(`reason.${reason.code}`) })}
         </span>
       )}
+    </div>
+  );
+}
+
+/**
+ * One "next step" of a Basic Project with a choice of where the STH discount or surcharge goes
+ * (R-STH-02), instead of a separate button per allocation.
+ */
+export function AdvanceOption({ state, options }: { state: GameState; options: Option[] }) {
+  const [picked, setPicked] = useState(() =>
+    Math.max(
+      0,
+      options.findIndex((o) => o.legal),
+    ),
+  );
+  const first = options[0];
+  if (!first || first.action.type !== 'advanceProject') return null;
+  const chosen = options[Math.min(picked, options.length - 1)] ?? first;
+  if (options.length === 1) return <OptionButton state={state} option={chosen} />;
+  const { player, instanceId } = first.action;
+  const sth = state.players.find((p) => p.id === player)?.sth ?? 0;
+  return (
+    <div class="advance-option">
+      <fieldset class="sth-choice">
+        <legend>{t(sth > 0 ? 'option.sthDiscount' : 'option.sthSurcharge')}</legend>
+        <div class="segmented">
+          {options.map((option, i) =>
+            option.action.type === 'advanceProject' ? (
+              <label key={i} class="segment">
+                <input
+                  type="radio"
+                  name={`sth-${instanceId}`}
+                  checked={option === chosen}
+                  onChange={() => {
+                    setPicked(i);
+                  }}
+                />
+                <span>
+                  <Chips bundle={option.action.sthAllocation} />
+                </span>
+              </label>
+            ) : null,
+          )}
+        </div>
+      </fieldset>
+      <OptionButton state={state} option={chosen} />
     </div>
   );
 }

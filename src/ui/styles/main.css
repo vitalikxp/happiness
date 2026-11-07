@@ -303,7 +303,7 @@ input[type='text']::placeholder {
   cursor: pointer;
 }
 
-.segment span {
+.segment > span {
   display: inline-block;
   padding: var(--s-2) var(--s-4);
   border: 1px solid var(--ink-soft);
@@ -688,8 +688,36 @@ input[type='text']::placeholder {
   line-height: 1.2;
 }
 
-.option-allocation {
+.advance-option {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.sth-choice {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sth-choice legend {
+  float: left;
+  margin: 0 var(--s-2) 0 0;
+  padding: 0;
+  line-height: 2rem;
   font-size: var(--step--1);
+  font-style: italic;
+}
+
+.sth-choice .segmented {
+  display: inline-flex;
+}
+
+.sth-choice .segment > span {
+  padding: 2px var(--s-3);
+}
+
+.sth-choice .segment input:checked + span .icon {
+  color: inherit;
 }
 
 .option-reason {

@@ -15,7 +15,7 @@ import { fastBots, isHumanTurn, skipAhead, type Profile, type Session } from '..
 import { chronicle } from '../story.ts';
 import { CardView } from './CardView.tsx';
 import { Chips, Icon } from './Icons.tsx';
-import { OptionButton } from './OptionButton.tsx';
+import { AdvanceOption, OptionButton } from './OptionButton.tsx';
 import { ProfileShield } from './Shield.tsx';
 
 const CARD_SPACES: readonly BoardSpaceId[] = [
@@ -220,9 +220,12 @@ function Market({ session, options }: { session: Session; options: Options }) {
 
 function OptionList({ state, options }: { state: GameState; options: Options['traits'] }) {
   if (options.length === 0) return null;
+  const advance = options.filter((o) => o.action.type === 'advanceProject');
+  const rest = options.filter((o) => o.action.type !== 'advanceProject');
   return (
     <div class="options">
-      {options.map((option, i) => (
+      {advance.length > 0 && <AdvanceOption state={state} options={advance} />}
+      {rest.map((option, i) => (
         <OptionButton key={i} state={state} option={option} />
       ))}
     </div>
