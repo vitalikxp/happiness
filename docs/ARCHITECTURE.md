@@ -117,19 +117,29 @@ content/packs/fantasy/
 src/ui/
   session.ts    Signals store: engine state + action log, profiles (name, gender, heraldry) and the
                 bots' turn loop (setTimeout pauses; fast mode; skip-ahead after the human dies).
+                Autosaves every move, restores by replay, undoes within the round.
+  history.ts    Finished lives (R-META-01): game record + summary + biography text; records.
+  settings.ts   Theme (`data-theme` on <html>), bot speed, opponents' difficulty.
+  storage.ts    Guarded localStorage JSON (`happiness.*` keys); the game works without storage.
+  nav.ts        Pages outside a game: title, archive, one archived life.
   options.ts    Everything the human could do now, grouped by UI place (board space, market card,
                 tableau card, upkeep, omen) — legal ones with `previewAction` deltas, illegal ones
                 with `explainIllegal` reasons.
   story.ts      Event log → chronicle lines and the end-of-life biography (pack `bio.*` templates).
   content.ts    The played pack (`fantasy`) and `pt()` lookups of its texts.
-  components/   NewGame, Decisions (omen, upkeep), Board (rounds, spaces, market, hero, opponents,
-                goals, chronicle), CardView (any card from data), Icons, Shield, EndScreen.
+  components/   NewGame (+ continue), Decisions (omen, upkeep), Board (rounds, spaces, market, hero,
+                opponents, goals, chronicle), CardView (any card from data), Icons, Shield,
+                EndScreen, History (records, archive, past life), SettingsPanel.
   styles/       One stylesheet of tokens + components («книжная миниатюра»; dark = candlelight).
 ```
 
 - Components render from state + content + i18n; **no rule logic in components** — the engine
   decides (`getLegalActions`, `getCandidateActions`, `explainIllegal`, `previewAction`).
 - Character profiles are UI-only flavor (R-SET-08); the engine never sees them.
+- Persistence stores **records, not states**: seed + setup + action log (+ profiles, bot names).
+  The state is rebuilt with `replay`, which is only valid for the same content, so every save and
+  archived life carries a fingerprint of the pack's rules and cards (texts excluded). A save with
+  another fingerprint is not offered; an archived life keeps its summary and biography text.
 - Fonts are self-hosted via `@fontsource` (Ruslan Display initials, Cormorant Garamond headings,
   Alegreya text) — no CDN at runtime.
 - Desktop first (≥ 1280×720); narrower windows stack the margins under the page instead of breaking.

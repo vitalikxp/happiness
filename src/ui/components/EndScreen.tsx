@@ -1,6 +1,8 @@
 import type { LthSource } from '../../engine/index.ts';
 import { cardName, content } from '../content.ts';
 import { t } from '../i18n/index.ts';
+import { history, records } from '../history.ts';
+import { go } from '../nav.ts';
 import { leaveGame, type Session } from '../session.ts';
 import { biography } from '../story.ts';
 import { Chronicle } from './Board.tsx';
@@ -17,7 +19,8 @@ const SOURCES: LthSource[] = [
   'inheritance',
 ];
 
-export function EndScreen({ session }: { session: Session }) {
+/** `archived`: a past life opened from the archive rather than the game just finished. */
+export function EndScreen({ session, archived = false }: { session: Session; archived?: boolean }) {
   const { state, profiles, human } = session;
   const result = state.result;
   if (!result) return null;
@@ -43,6 +46,7 @@ export function EndScreen({ session }: { session: Session }) {
         </p>
         <h1 class="title">{t('end.heading')}</h1>
         <p class="title-tagline">{verdict}</p>
+        {!archived && <NewRecord session={session} />}
       </header>
 
       <div class="end-grid">
@@ -137,9 +141,28 @@ export function EndScreen({ session }: { session: Session }) {
             </ul>
           </section>
 
-          <button type="button" class="primary" onClick={leaveGame}>
-            {t('end.again')}
-          </button>
+          {archived ? (
+            <button
+              type="button"
+              class="secondary"
+              onClick={() => {
+                go({ kind: 'history' });
+              }}
+            >
+              {t('nav.history', { n: history.value.length })}
+            </button>
+          ) : (
+            <button
+              type="button"
+              class="primary"
+              onClick={() => {
+                leaveGame();
+                go({ kind: 'title' });
+              }}
+            >
+              {t('end.again')}
+            </button>
+          )}
         </div>
       </div>
 
@@ -148,4 +171,14 @@ export function EndScreen({ session }: { session: Session }) {
       </div>
     </main>
   );
+}
+
+/** «Личный рекорд» when this life beats every earlier one of its kind (solo / vs bots). */
+function NewRecord({ session }: { session: Session }) {
+  const me = session.state.players.find((p) => p.id === session.human);
+  const solo = session.state.result?.solo !== null;
+  const earlier = history.value.filter((life) => life.id !== session.seed);
+  const best = records(earlier)[solo ? 'bestSolo' : 'bestVsBots'];
+  if (!me || earlier.length === 0 || (best && best.lth >= me.lth)) return null;
+  return <p class="new-record">{t('end.newRecord', { lth: me.lth })}</p>;
 }

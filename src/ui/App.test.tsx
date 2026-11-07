@@ -2,11 +2,14 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { App } from './App.tsx';
 import { ru } from './i18n/locales/ru.ts';
+import { go } from './nav.ts';
 import { leaveGame, session } from './session.ts';
 
 afterEach(() => {
   cleanup();
   leaveGame();
+  go({ kind: 'title' });
+  localStorage.clear();
 });
 
 describe('App', () => {
@@ -40,5 +43,27 @@ describe('App', () => {
     fireEvent.click(first);
     expect(screen.getByRole('heading', { name: ru['board.market'] })).toBeTruthy();
     expect(screen.getByText(ru['board.turnYou'])).toBeTruthy();
+  });
+
+  it('offers to continue an unfinished life after leaving to the title page', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('radio', { name: ru['newGame.opponents.0'] }));
+    fireEvent.click(screen.getByRole('button', { name: ru['newGame.start'] }));
+    const [first] = screen.getAllByRole('button', { name: new RegExp(ru['trait.choose']) });
+    if (!first) throw new Error('no omen button');
+    fireEvent.click(first);
+    fireEvent.click(screen.getByRole('button', { name: ru['board.toTitle'] }));
+
+    expect(session.value).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: ru['continue.go'] }));
+    expect(session.value?.actions).toHaveLength(1);
+    expect(screen.getByRole('heading', { name: ru['board.market'] })).toBeTruthy();
+  });
+
+  it('opens the archive of lives from the title page', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /Архив жизней/ }));
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(ru['history.heading']);
+    expect(screen.getByText(ru['history.empty'])).toBeTruthy();
   });
 });

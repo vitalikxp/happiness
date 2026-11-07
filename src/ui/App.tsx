@@ -2,9 +2,11 @@ import { useEffect, useMemo } from 'preact/hooks';
 import { Board } from './components/Board.tsx';
 import { TraitChoice, UpkeepPanel } from './components/Decisions.tsx';
 import { EndScreen } from './components/EndScreen.tsx';
+import { HistoryPage, LifePage } from './components/History.tsx';
 import { NewGame } from './components/NewGame.tsx';
 import { content } from './content.ts';
 import { locale, t } from './i18n/index.ts';
+import { view } from './nav.ts';
 import { optionsFor } from './options.ts';
 import { isHumanTurn, session } from './session.ts';
 
@@ -23,7 +25,12 @@ export function App() {
     [state, current?.human],
   );
 
-  if (!current || !options) return <NewGame />;
+  if (!current || !options) {
+    const page = view.value;
+    if (page.kind === 'history') return <HistoryPage />;
+    if (page.kind === 'life') return <LifePage id={page.id} />;
+    return <NewGame />;
+  }
   if (current.state.phase === 'gameOver') return <EndScreen session={current} />;
 
   if (current.state.phase === 'setup') {

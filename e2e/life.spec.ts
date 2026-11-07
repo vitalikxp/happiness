@@ -30,7 +30,7 @@ async function playLife(page: Page, opponents: string) {
       if (has('.decision')) return { kind: 'omen' };
       const fast = document.querySelector<HTMLInputElement>('.turn-status input[type=checkbox]');
       if (fast && !fast.checked) return { kind: 'fast' };
-      if (has('.turn-status button.secondary')) return { kind: 'skip' };
+      if (has('button.fast-forward')) return { kind: 'skip' };
       if (!has('.turn-you')) return { kind: 'wait' };
       return {
         kind: 'turn',
@@ -44,7 +44,7 @@ async function playLife(page: Page, opponents: string) {
     else if (phase.kind === 'upkeep')
       await click('.upkeep-panel button.option-button:not([disabled])');
     else if (phase.kind === 'fast') await page.getByLabel('Быстрые соперники').check();
-    else if (phase.kind === 'skip') await click('.turn-status button.secondary');
+    else if (phase.kind === 'skip') await click('button.fast-forward');
     else if (phase.kind === 'wait') await page.waitForTimeout(100);
     else {
       const { market = 0, hand = 0, spaces = 0 } = phase;
@@ -77,9 +77,31 @@ async function playLife(page: Page, opponents: string) {
   expect(errors).toEqual([]);
 }
 
-test('a whole solo life', async ({ page }) => {
+test('a whole solo life, then it is in the archive', async ({ page }) => {
   await playLife(page, 'Одна жизнь (соло)');
   await expect(page.getByText(/Победа|Жизнь прожита/)).toBeVisible();
+  await page.getByRole('button', { name: 'Новая жизнь' }).click();
+  await page.getByRole('button', { name: 'Архив жизней (1)' }).click();
+  await expect(page.locator('.life')).toHaveCount(1);
+  await page.getByRole('button', { name: 'Открыть' }).click();
+  await expect(page.locator('.biography p').first()).toContainText('Агнесса');
+});
+
+test('a life survives a page reload', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Имя героя').fill('Гедеон');
+  await page.getByRole('radio', { name: 'Соперников: 1' }).check();
+  await page.getByRole('button', { name: 'Начать жизнь' }).click();
+  await page.locator('.decision button.option-button:not([disabled])').first().click();
+  await expect(page.locator('.turn-you')).toBeVisible();
+  await page.locator('.spaces button.option-button:not([disabled])').first().click();
+  await expect(page.getByRole('button', { name: 'Отменить ход' })).toBeEnabled();
+
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Незаконченная летопись' })).toBeVisible();
+  await page.getByRole('button', { name: 'Продолжить' }).click();
+  await expect(page.getByRole('heading', { name: 'Рынок' })).toBeVisible();
+  await expect(page.locator('.hero-name')).toHaveText('Гедеон');
 });
 
 test('a whole life against three opponents', async ({ page }) => {

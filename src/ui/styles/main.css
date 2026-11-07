@@ -59,9 +59,10 @@
   color-scheme: light;
 }
 
+/* Reading by candlelight: the page darkens, the ink becomes pale. Follows the system unless the
+   player picked a theme in the settings (`data-theme` on <html>). */
 @media (prefers-color-scheme: dark) {
-  /* Reading by candlelight: the page darkens, the ink becomes pale. */
-  :root {
+  :root:not([data-theme='light']) {
     --parchment: #241a12;
     --parchment-deep: #1b130d;
     --vellum: #2f2318;
@@ -78,6 +79,24 @@
     --argent: #f3ead6;
     color-scheme: dark;
   }
+}
+
+:root[data-theme='dark'] {
+  --parchment: #241a12;
+  --parchment-deep: #1b130d;
+  --vellum: #2f2318;
+  --ink: #f0e2c4;
+  --ink-soft: #d2bc94;
+  --ink-faint: #7d6447;
+  --cinnabar: #e7795a;
+  --lapis: #8fb3ea;
+  --gold: #e2b65c;
+  --gold-leaf: #d8a84a;
+  --verdigris: #78c2a5;
+  --slate: #b9bcc8;
+  --shadow: 0 0 0;
+  --argent: #f3ead6;
+  color-scheme: dark;
 }
 
 *,
@@ -487,6 +506,123 @@ input[type='text']::placeholder {
   animation: ink-in 900ms 150ms ease-out both;
 }
 
+.secondary:disabled {
+  cursor: not-allowed;
+  border-style: dashed;
+  background: transparent;
+  color: var(--ink-soft);
+}
+
+.secondary.small {
+  padding: var(--s-1) var(--s-3);
+  font-size: var(--step--1);
+}
+
+.title-page > .folio + .folio,
+.title-page > .folio + form,
+.title-page > nav + .folio {
+  margin-top: var(--s-6);
+}
+
+.continue-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+.continue-body p {
+  margin: 0;
+  flex: 1;
+}
+
+.continue-body .primary {
+  margin-top: 0;
+}
+
+.title-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-3);
+  margin: var(--s-6) 0;
+}
+
+.settings .toggle {
+  margin-top: var(--s-4);
+}
+
+/* ——— Archive of lives ——— */
+
+.records {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--s-4);
+  margin: 0;
+}
+
+.record dt {
+  font-size: var(--step--1);
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+.record dd {
+  margin: 0;
+}
+
+.record-value {
+  font-family: var(--font-display);
+  font-size: var(--step-3);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--gold);
+}
+
+.lives {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.life {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: var(--rule);
+}
+
+.life:last-child {
+  border-bottom: 0;
+}
+
+.life-text p {
+  margin: 0;
+}
+
+.life-name {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.life-lth {
+  margin-left: var(--s-3);
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.new-record {
+  margin: var(--s-3) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 700;
+  color: var(--gold);
+}
+
 /* ——— Board: a two-page spread with margins ——— */
 
 .spread {
@@ -587,6 +723,11 @@ input[type='text']::placeholder {
   align-items: center;
   justify-content: flex-end;
   gap: var(--s-3);
+}
+
+.turn-actions {
+  display: flex;
+  gap: var(--s-2);
 }
 
 .turn {
