@@ -71,7 +71,8 @@ pnpm test:watch       # Vitest watch mode
 pnpm lint             # ESLint (incl. layer boundaries & determinism rules) + Prettier check
 pnpm format           # Prettier write
 pnpm typecheck        # tsc -b (app + node configs)
-pnpm sim --games 1000 --bots greedy,greedy:family,random --seed 1 [--pack core-test] [--json out.json]
+pnpm sim --games 1000 --bots greedy,greedy:family,novice,random --seed 1 [--pack core-test]
+         [--unlock-all] [--json out.json]
                       # headless bot games in worker threads → balance report (BALANCE.md §4)
 pnpm budget [--pack core-test] [--all]   # card budget report vs value model (BALANCE.md §3)
 pnpm e2e              # Playwright: whole lives through the UI (needs Google Chrome installed)

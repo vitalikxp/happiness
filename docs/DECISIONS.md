@@ -110,3 +110,15 @@ greedy's 71% in `greedy,novice,novice` sims) or `greedy`. (4) The archive keeps 
 and forgets the oldest when storage is full.
 **Consequences:** changing any card or rule makes older saves unplayable (by design: they would
 diverge), but the archive's summaries survive.
+
+## ADR-017 — Achievements, unlocks and hints (2026-11-07)
+**Decision:** (1) Achievements are pack data — conditions over the finished game (a Life Goal metric
+or final LTH ≥ N; a win against N opponents) — checked by a pure engine function after the game.
+(2) Unlockable Child Traits / Life Goals live in the normal decks; the pack's `achievements` marks
+them locked, and `GameSetup.unlocked` (part of every saved record) brings them back, so replays stay
+exact and a game without unlocks is dealt exactly as before. (3) First-game hints are UI-only margin
+notes keyed by situation, shown once each, switchable in the settings. (4) Accessibility is checked
+by axe-core (WCAG 2.2 AA tags) in e2e on every screen, in both themes.
+**Consequences:** new Life Goal metrics (`activitiesDone`, `basicProjectsCompleted`,
+`resourcesAtDeath`) are known to the greedy bot. Achievements are not awarded retroactively for
+lives finished before M6b.

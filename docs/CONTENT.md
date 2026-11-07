@@ -59,8 +59,27 @@ Partner levels: Знакомство → Ухаживание → Союз → �
 | Items & Activities | 40 | ~24 items (конь, дом, библиотека, мастерская, доспех, корабль), ~16 activities (пир, ярмарка, охота, театр) |
 | Jobs | 18 | 3 tracks × 3 levels × 2 variants |
 | Partners | 12 | Double-sided: two versions (different gender, name, portrait) with identical mechanics. Diverse races/temperaments; each with level requirements and a distinct "taste" (wants Мудрость / Славу / Золото…) |
-| Child Traits | 8 base (+ ~4 unlockable in M6) | «Под звездой мудреца», «Дитя кузницы», «Гроза в ночь рождения»… |
-| Life Goals | 9 base (+ ~3 unlockable in M6) | «Хранитель знаний», «Большая семья», «Богатое наследство», «Долгожитель»… |
+| Child Traits | 8 base + 4 unlockable | «Под звездой мудреца», «Дитя кузницы», «Гроза в ночь рождения»… |
+| Life Goals | 9 base + 3 unlockable | «Хранитель знаний», «Большая семья», «Богатое наследство», «Долгожитель»… |
+
+### 4.1 Achievements and unlocks (R-META-02, R-META-03)
+
+`src/content/packs/fantasy/achievements.ts`. Unlockable cards have the same budget as base ones:
+they add variety, not power.
+
+| Achievement | Condition (the human, at the end of a life) | Unlocks |
+|---|---|---|
+| Первая летопись | finish a life | — |
+| Долгая дорога | live to the last round (8) | Знамение «Железная воля» (Overtime → +1 Мудрость) |
+| Мастер гильдии | Job of level 3 | Знамение «Кровь странника» (Get Job → +1 Слава, +1 Радость) |
+| Семейный очаг | Partner at «Семья» (L4) | Знамение «Хранитель очага» (Develop Relationship → relax) |
+| Своя дорога | win a solo life | Знамение «Под счастливой луной» (Take Project → +1 Радость) |
+| Первый среди равных | win against 3 opponents | Предназначение «Кладезь талантов» (Knowledge + Creativity + Influence; solo ≥ 15) |
+| Дважды до конца | complete 2 Basic Projects | Предназначение «Мастер-строитель» (Basic Projects completed; solo ≥ 2) |
+| Жизнелюб | 4 Activities in a life | Предназначение «Жизнь в удовольствие» (Activities done; solo ≥ 6) |
+| Счастливая жизнь | 60 LTH | — |
+| Полный дом | own 4 Items | — |
+| Сундук золота | 15 Золота at death | — |
 
 Each card should cover a **category tag** (thematic: arcane, craft, martial, court, trade, nature, faith)
 so bot personalities and the biography can use it.

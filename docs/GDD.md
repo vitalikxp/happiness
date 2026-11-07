@@ -218,7 +218,8 @@ and levels/roles with `cost`, `reward`, optional `upkeep` and `requirement`.
   ties or a best value of 0 ⇒ nobody. Solo: a goal is achieved when its threshold is met, and an
   achieved goal also pays its LTH (R-SOLO-02).
 - Metrics: resources/money held at death; completed Projects (Basic L4, Single-Round, Group Projects
-  you started — everything set aside); Items owned; highest Partner level; Job level; rounds lived.
+  you started — everything set aside); Items owned; highest Partner level; Job level; rounds lived;
+  Activities done; Basic Projects completed (L4); Knowledge + Creativity + Influence held at death.
 
 ---
 
@@ -324,6 +325,9 @@ Lives a player has lived persist in the browser (localStorage, per device).
   (seed, character, final LTH breakdown, biography). Any archived life can be replayed from seed + log.
 - **R-META-02** Achievements: pure predicates over a finished game (final state + event log),
   e.g. «Дожить до конца Старости», «Стать архимагом». Evaluated after the game, never during it.
+  Conditions are data in the pack: a Life Goal metric (or final LTH) reaching a threshold, and/or a
+  win (solo victory or first place) against a given number of opponents. Checked for the human only.
+  The fantasy list is in `docs/CONTENT.md §4.1`.
 - **R-META-03** Unlockable content: some Child Traits and Life Goals are locked until an achievement
   unlocks them. The **base set is always available and sufficient**; unlocks add variety, not power —
   unlockable cards pass the same budget linter. The unlocked set is part of `GameSetup`, so the engine

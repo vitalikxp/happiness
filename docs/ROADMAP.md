@@ -64,8 +64,8 @@ milestone unless told otherwise; keep tasks small (≤ ~1 day of human work).
 - [x] Save/resume, undo within the round, settings (theme, bot speed; bot count/difficulty in the
   new-game form). Rule variants (GDD §13) stay off until their flags exist in the engine.
 - [x] Personal records & life history (R-META-01)
-- [ ] Achievements & unlockable Child Traits (~4) / Life Goals (~3) (R-META-02, R-META-03)
-- [ ] Tutorial / first-game hints; accessibility pass
+- [x] Achievements & unlockable Child Traits (4) / Life Goals (3) (R-META-02, R-META-03)
+- [x] First-game hints (margin notes, each once); accessibility pass (axe-core WCAG 2.2 AA in e2e)
 - [ ] Art pass: style guide + AI-generated illustrations with CREDITS; sound (optional)
 - [ ] Deploy to static hosting
 
