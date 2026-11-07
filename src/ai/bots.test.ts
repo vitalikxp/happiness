@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { loadPack } from '../content/index.ts';
 import { coreTestPack } from '../content/packs/core-test/index.ts';
 import { applyAction, createGame, type GameState } from '../engine/index.ts';
-import { botByName, greedyBot, randomBot, type Bot } from './index.ts';
+import { botByName, greedyBot, noviceBot, randomBot, type Bot } from './index.ts';
 
 const content = loadPack(coreTestPack);
 
@@ -28,7 +28,7 @@ const avgLth = (bots: Bot[], games: number) => {
 describe('bots', () => {
   it('R-BOT-01: bots only ever choose legal actions and finish games', () => {
     for (const seed of ['a', 'b', 'c']) {
-      const end = play([randomBot, greedyBot(), greedyBot('family'), randomBot], seed);
+      const end = play([randomBot, greedyBot(), greedyBot('family'), noviceBot()], seed);
       expect(end.phase).toBe('gameOver');
     }
   });
@@ -37,8 +37,14 @@ describe('bots', () => {
     expect(avgLth([greedyBot()], 10)).toBeGreaterThan(avgLth([randomBot], 10) + 10);
   });
 
+  it('R-BOT-02: the novice sits between random and greedy', () => {
+    const novice = avgLth([noviceBot()], 10);
+    expect(novice).toBeGreaterThan(avgLth([randomBot], 10));
+    expect(novice).toBeLessThan(avgLth([greedyBot()], 10));
+  });
+
   it('R-BOT-03: decisions are reproducible from the game seed', () => {
-    const bots = [greedyBot(), randomBot];
+    const bots = [greedyBot(), noviceBot('scholar'), randomBot];
     expect(play(bots, 'same')).toEqual(play(bots, 'same'));
   });
 
@@ -55,10 +61,12 @@ describe('bots', () => {
     expect(studies(greedyBot('scholar'))).toBeGreaterThan(studies(greedyBot('artisan')));
   });
 
-  it('botByName parses random, greedy and greedy:<personality>', () => {
+  it('botByName parses random, greedy[:<personality>] and novice[:<personality>]', () => {
     expect(botByName('random').name).toBe('random');
     expect(botByName('greedy').name).toBe('greedy');
     expect(botByName('greedy:hedonist').name).toBe('greedy:hedonist');
+    expect(botByName('novice').name).toBe('novice');
+    expect(botByName('novice:family').name).toBe('novice:family');
     expect(() => botByName('greedy:pirate')).toThrow(/Unknown bot/);
     expect(() => botByName('smart')).toThrow(/Unknown bot/);
   });
