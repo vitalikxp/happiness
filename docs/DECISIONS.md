@@ -133,4 +133,4 @@ Subjects keep people small and partners drawn through their things, so one pictu
 partner versions and any hero. (3) Hosting: GitHub Pages from a workflow on every push to `main`;
 the relative Vite `base` serves the build from `/happiness/`.
 **Consequences:** v1 ships without illustrations; sound stays out of v1. Saves live in the
-browser's storage for `vitalikxp.github.io`, under `happiness.*` keys.
+browser's storage for `vitalik.dev` (the owner's Pages domain), under `happiness.*` keys.
