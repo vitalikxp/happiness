@@ -75,6 +75,7 @@ pnpm sim --games 1000 --bots greedy,greedy:family,novice,random --seed 1 [--pack
          [--unlock-all] [--json out.json]
                       # headless bot games in worker threads → balance report (BALANCE.md §4)
 pnpm budget [--pack core-test] [--all]   # card budget report vs value model (BALANCE.md §3)
+pnpm art              # regenerate art/PROMPTS.md, check pictures in art/cards/ (art/STYLE.md)
 pnpm e2e              # Playwright: whole lives through the UI (needs Google Chrome installed)
 ```
 

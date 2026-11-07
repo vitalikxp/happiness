@@ -9,7 +9,7 @@ display names, icons, cards, texts and tunable numbers. First pack: **`fantasy`*
 - Don't mirror the original's card list one-to-one (no "fantasy reskin" of each original card).
   Design cards from the setting outward, then fit them to the value model.
 - Art: AI-generated in one consistent style (style guide in `art/STYLE.md`: palette, line, framing,
-  prompt template), curated by hand. Record per asset in `art/CREDITS.md`: tool/model, prompt, date,
+  prompt template; per-card prompts in `art/PROMPTS.md`, from `fantasy/art.ts`), curated by hand. Record per asset in `art/CREDITS.md`: tool/model, prompt, date,
   license terms. Never prompt with the original game's name, artist or card titles.
 - v1 UI works without illustrations («книжная миниатюра» in CSS/SVG); cards reference art by id and the
   renderer falls back to an ornament/initial.

@@ -6,5 +6,6 @@ happy as you can without being crushed by the burden of it all.
 
 Mechanically inspired by *The Pursuit of Happiness* (Artipia Games, 2015). All content is original.
 
-Status: **playable prototype** — engine, bots, fantasy pack and UI (M0–M5). Run `pnpm dev`. Start with [`AGENTS.md`](AGENTS.md) and
-[`docs/ROADMAP.md`](docs/ROADMAP.md).
+Status: **v1** — engine, bots, fantasy pack, UI, saves, achievements (M0–M6).
+Play: <https://vitalikxp.github.io/happiness/> (desktop browser). Locally: `pnpm dev`.
+Start with [`AGENTS.md`](AGENTS.md) and [`docs/ROADMAP.md`](docs/ROADMAP.md).
